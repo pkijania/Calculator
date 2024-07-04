@@ -8,7 +8,8 @@ Author URI: https://przemyslawkijania.pl/
 */
 
 function html_calculation_code()
-{            
+{
+    if (!isset( $_POST['cf-submitted']) && !isset( $_POST['cf-count'])) {
         echo '<form action="' . esc_url( $_SERVER['REQUEST_URI'] ) . '" method="post">';
 
         echo '<p>';
@@ -23,34 +24,37 @@ function html_calculation_code()
 
         echo '<p><input type="submit" name="cf-count" value="Oblicz"></p>';
         echo '</form>';
+    }
 }
 
 function html_form_code()
 {
-	echo '<form action="' . esc_url( $_SERVER['REQUEST_URI'] ) . '" method="post">';
+    if ( isset( $_POST['cf-count'])) {
+        echo '<form action="' . esc_url( $_SERVER['REQUEST_URI'] ) . '" method="post">';
 
-	echo '<p>';
-	echo 'Your Name (required) <br/>';
-	echo '<input type="text" name="cf-name" pattern="[a-zA-Z0-9 ]+" value="' . ( isset( $_POST["cf-name"] ) ? esc_attr( $_POST["cf-name"] ) : '' ) . '" size="40" />';
-	echo '</p>';
+        echo '<p>';
+        echo 'Your Name (required) <br/>';
+        echo '<input type="text" name="cf-name" pattern="[a-zA-Z0-9 ]+" value="' . ( isset( $_POST["cf-name"] ) ? esc_attr( $_POST["cf-name"] ) : '' ) . '" size="40" />';
+        echo '</p>';
 
-	echo '<p>';
-	echo 'Your Email (required) <br/>';
-	echo '<input type="email" name="cf-email" value="' . ( isset( $_POST["cf-email"] ) ? esc_attr( $_POST["cf-email"] ) : '' ) . '" size="40" />';
-	echo '</p>';
+        echo '<p>';
+        echo 'Your Email (required) <br/>';
+        echo '<input type="email" name="cf-email" value="' . ( isset( $_POST["cf-email"] ) ? esc_attr( $_POST["cf-email"] ) : '' ) . '" size="40" />';
+        echo '</p>';
 
-	echo '<p>';
-	echo 'Subject (required) <br/>';
-	echo '<input type="text" name="cf-subject" pattern="[a-zA-Z ]+" value="' . ( isset( $_POST["cf-subject"] ) ? esc_attr( $_POST["cf-subject"] ) : '' ) . '" size="40" />';
-	echo '</p>';
+        echo '<p>';
+        echo 'Subject (required) <br/>';
+        echo '<input type="text" name="cf-subject" pattern="[a-zA-Z ]+" value="' . ( isset( $_POST["cf-subject"] ) ? esc_attr( $_POST["cf-subject"] ) : '' ) . '" size="40" />';
+        echo '</p>';
 
-	echo '<p>';
-	echo 'Your Message (required) <br/>';
-	echo '<textarea rows="10" cols="35" name="cf-message">' . ( isset( $_POST["cf-message"] ) ? esc_attr( $_POST["cf-message"] ) : '' ) . '</textarea>';
-	echo '</p>';
+        echo '<p>';
+        echo 'Your Message (required) <br/>';
+        echo '<textarea rows="10" cols="35" name="cf-message">' . ( isset( $_POST["cf-message"] ) ? esc_attr( $_POST["cf-message"] ) : '' ) . '</textarea>';
+        echo '</p>';
 
-	echo '<p><input type="submit" name="cf-submitted" value="Send"></p>';
-	echo '</form>';
+        echo '<p><input type="submit" name="cf-submitted" value="Send"></p>';
+        echo '</form>';
+    }
 }
 
 class calculator
@@ -162,6 +166,16 @@ class calculator
     }
 }
 $power = "";
+
+echo '<pre>'; print_r($_POST); echo '</pre>';
+
+add_action( 'wp_mail_failed', 'onMailError', 10, 1 );
+function onMailError( $wp_error ) {
+	echo "<pre>";
+    print_r($wp_error);
+    echo "</pre>";
+}    
+
 function cf_shortcode()
 {
     $result = new calculator();
