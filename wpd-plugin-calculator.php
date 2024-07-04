@@ -167,8 +167,6 @@ class calculator
 }
 $power = "";
 
-echo '<pre>'; print_r($_POST); echo '</pre>';
-
 add_action( 'wp_mail_failed', 'onMailError', 10, 1 );
 function onMailError( $wp_error ) {
 	echo "<pre>";
@@ -178,12 +176,12 @@ function onMailError( $wp_error ) {
 
 function cf_shortcode()
 {
+    ob_start();
     $result = new calculator();
     if(isset($_POST['cf-count']))
     {   
         $power = $result->calculate_power($_POST['cf-power'],$_POST['cf-standard']);
     }
-	ob_start();
 	$result->deliver_mail();
     html_calculation_code();
 	html_form_code();
