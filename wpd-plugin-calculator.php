@@ -1,8 +1,3 @@
-<?php 
-$power = "";
-$pump = "";
-class calculator
-=======
 <?php
 /*
 Plugin Name: Power calculator
@@ -13,56 +8,12 @@ Author URI: https://przemyslawkijania.pl/
 */
 
 class Calculator
->>>>>>> Stashed changes
 {
-    function deliver_mail()
-    {
-        // if the submit button is clicked, send the email
-        if (isset( $_POST['cf-submitted'])) {
-
-            // sanitize form values
-            $name    = sanitize_text_field( $_POST["cf-name"] );
-            $email   = sanitize_email( $_POST["cf-email"] );
-            $subject = sanitize_text_field( $_POST["cf-subject"] );
-            $message = esc_textarea( $_POST["cf-message"] );
-
-            // get the blog administrator's email address
-            $to = get_option('admin_email');
-
-            $headers = "From: $name <$email>" . "\r\n";
-                    
-            // If email has been process for sending, display a success message
-            if (wp_mail($to, $subject, $message, $headers)) 
-            {
-                echo '<div>';
-                echo '<p>Thanks for contacting me, expect a response soon.</p>';
-                echo '</div>';
-            } 
-            else 
-            {
-                echo 'An unexpected error occurred';
-            }
-        }
-    }
-
     var $pump_power;
     var $area;
     var $standard;
 
-    function pump($area, $standard)
-    {
-        // Wyliczenie szacowanej mocy potrzebnej do ocieplenia budynku
-        $this->area = $area;
-        $this->standard = $standard;
-        $pump_power = ($this->area * $this->standard)/2000;
-        return $pump_power;
-        //
-    }
-
-    function calculate_power($area, $standard)
-=======
     public function calculate_power($area, $standard)
->>>>>>> Stashed changes
     {
         $this->area = $area;
         $this->standard = $standard;
@@ -70,8 +21,9 @@ class Calculator
         return $this->pump_power;
     }
 
-        // Szczegółowe informacje na temat modeli pomp ciepła
-        $pumps_models = [
+    private function get_pump_models()
+    {
+        return [
             1 => [
                 "name" => "Viessmann",
                 "id" => 2109,
@@ -97,23 +49,22 @@ class Calculator
                 "price" => 2600,
             ],
         ];
-        echo '<pre>'; print_r($pumps_models); echo '</pre>';
-        //
+    }
 
-        // Moce pomp potrzebne do obliczeń
-        $pump_one = 8.4;
-        $pump_two = 3.4;
-        $pump_three = 6.5;
-        $pump_four = 2.1;
-        $pumps_array = array($pump_one, $pump_two, $pump_three, $pump_four);
-        //
+    private function get_pumps_array($pumps_models)
+    {
+        $pumps_array = [];
+        foreach ($pumps_models as $pump) {
+            $pumps_array[] = $pump['power'];
+        }
+        return $pumps_array;
+    }
 
-        // Sprawdzanie, która pompa będzie odpowiednia do ocieplenia budynku
-        $list = array();
-        foreach ($pumps_array as &$pump_number)
-        {
-            if ($pump_number > $pump_power)
-            {
+    private function find_suitable_pump($pumps_array, $pump_power)
+    {
+        $list = [];
+        foreach ($pumps_array as &$pump_number) {
+            if ($pump_number > $pump_power) {
                 array_unshift($list, $pump_number - $pump_power);
             }
         }
@@ -138,47 +89,118 @@ class Calculator
             $results = array_filter($pumps_models, function ($pumps_models) use ($search_pumps) {
                 return count(array_intersect_assoc($search_pumps, $pumps_models)) == count($search_pumps);
             });
-            echo '<pre>'; print_r($results); echo '</pre>';
+            return $results;
         }
-        //
-        return $pump;
+    }
+
+    public function deliver_mail()
+    {
+        // If the submit button is clicked, send the email
+        if (isset($_POST['cf-submitted'])) {
+
+            // Sanitize form values
+            $name = sanitize_text_field($_POST["cf-name"]);
+            $email = sanitize_email($_POST["cf-email"]);
+            $subject = sanitize_text_field($_POST["cf-subject"]);
+            $message = esc_textarea($_POST["cf-message"]);
+
+            // Get the blog administrator's email address
+            $to = get_option('admin_email');
+
+            $headers = "From: $name <$email>" . "\r\n";
+
+            // If email has been process for sending, display a success message
+            if (wp_mail($to, $subject, $message, $headers)) {
+                echo '<div>';
+                echo '<p>Thanks for contacting me, expect a response soon.</p>';
+                echo '</div>';
+            } else {
+                echo 'An unexpected error occurred';
+            }
+        }
     }
 }
 
-$result = new calculator();
+function html_calculation_code()
+{
+    if (!isset($_POST['cf-submitted']) && !isset($_POST['cf-count'])) {
+        echo '<form action="' . esc_url($_SERVER['REQUEST_URI']) . '" method="post">';
 
-if(isset($_POST['submit']))
-{   
-    $power = $result->calculate_power($_POST['n1'],$_POST['n2']);
-    $pump = $result->pump($_POST['n1'],$_POST['n2']);
+        echo '<p>';
+        echo 'Powierzchnia ogrzewania [m2] (wymagane) <br/>';
+        echo '<input type="text" name="cf-power" pattern="[0-9]+(\.[0-9]{1,2})?" value="' . (isset($_POST["cf-power"]) ? esc_attr($_POST["cf-power"]) : '') . '" size="40" />';
+        echo '</p>';
+
+        echo '<p>';
+        echo 'Standard wykonania [kWh/m2 rok] (wymagane) <br/>';
+        echo '<input type="text" name="cf-standard" pattern="[0-9]+(\.[0-9]{1,2})?" value="' . (isset($_POST["cf-standard"]) ? esc_attr($_POST["cf-standard"]) : '') . '" size="40" />';
+        echo '</p>';
+
+        echo '<p><input type="submit" name="cf-count" value="Oblicz"></p>';
+        echo '</form>';
+    }
 }
+
+function html_form_code()
+{
+    if (isset($_POST['cf-count'])) {
+        echo '<form action="' . esc_url($_SERVER['REQUEST_URI']) . '" method="post">';
+
+        echo '<p>';
+        echo 'Twoje imię (wymagane) <br/>';
+        echo '<input type="text" name="cf-name" pattern="[a-zA-Z ]+" value="' . (isset($_POST["cf-name"]) ? esc_attr($_POST["cf-name"]) : '') . '" size="40" />';
+        echo '</p>';
+
+        echo '<p>';
+        echo 'Twój Email (wymagane) <br/>';
+        echo '<input type="email" name="cf-email" value="' . (isset($_POST["cf-email"]) ? esc_attr($_POST["cf-email"]) : '') . '" size="40" />';
+        echo '</p>';
+
+        echo '<p>';
+        echo 'Temat (wymagane) <br/>';
+        echo '<input type="text" name="cf-subject" pattern="[a-zA-Z ]+" value="' . (isset($_POST["cf-subject"]) ? esc_attr($_POST["cf-subject"]) : '') . '" size="40" />';
+        echo '</p>';
+
+        echo '<p>';
+        echo 'Twoja wiadomość (wymagane) <br/>';
+        echo '<textarea rows="10" cols="35" name="cf-message">' . (isset($_POST["cf-message"]) ? esc_attr($_POST["cf-message"]) : '') . '</textarea>';
+        echo '</p>';
+
+        echo '<p><input type="submit" name="cf-submitted" value="Send"></p>';
+        echo '</form>';
+    }
+}
+
+function cf_shortcode()
+{
+    ob_start();
+    $result = new Calculator();
+
+    if (isset($_POST['cf-count'])) {
+        $power = $result->calculate_power($_POST['cf-power'], $_POST['cf-standard']);
+        $pump_info = $result->get_pump_info($power);
+
+        echo 'Szacowana ilość mocy potrzebna do ogrzania domu to: ' . $power . ' kW<br>';
+        echo 'Odpowiednia pompa ciepła: <br>';
+        echo '<pre>';
+        print_r($pump_info);
+        echo '</pre>';
+    }
+
+    $result->deliver_mail();
+    html_calculation_code();
+    html_form_code();
+
+    return ob_get_clean();
+}
+
+add_action('wp_mail_failed', 'onMailError', 10, 1);
+function onMailError($wp_error)
+{
+    echo "<pre>";
+    print_r($wp_error);
+    echo "</pre>";
+}
+
+add_shortcode('power_calculator', 'cf_shortcode');
 ?>
-
-<form method="post">
-<table align="center">
-
-    <tr>
-        <td>Powierzchnia ogrzewania [m2]</td>
-        <td><input type="text" name="n1"></td>
-    </tr>
-
-    <tr>
-        <td>Standard wykonania [kWh/m2 rok]</td>
-        <td><input type="text" name="n2"></td>
-    </tr>
-
-    <tr>
-        <td></td>
-        <td><input type="submit" name="submit" value="="></td>
-    </tr>
-
-    <tr>
-        <td>Szacowana moc potrzebna do ocieplenia domu: <strong><?php echo $pump; ?><strong></td>
-    </tr>
-
-    <tr>
-        <td>Odpowiednia pompa ciepła: <strong><?php echo $power; ?><strong></td>
-    </tr>
-
-</table>
-</form>
