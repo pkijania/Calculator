@@ -7,7 +7,11 @@ Author: Przemysław Kijania
 Author URI: https://przemyslawkijania.pl/
 */
 
+<<<<<<< Updated upstream
 function html_calculation_code()
+=======
+class Calculator
+>>>>>>> Stashed changes
 {
     if (!isset( $_POST['cf-submitted']) && !isset( $_POST['cf-count'])) {
         echo '<form action="' . esc_url( $_SERVER['REQUEST_URI'] ) . '" method="post">';
@@ -93,6 +97,7 @@ class calculator
     var $area;
     var $standard;
 
+<<<<<<< Updated upstream
     function calculate_power($area, $standard)
     {
         // Wyliczenie szacowanej mocy potrzebnej do ocieplenia budynku
@@ -103,6 +108,19 @@ class calculator
 
         // Szczegółowe informacje na temat modeli pomp ciepła
         $pumps_models = [
+=======
+    public function calculate_power($area, $standard)
+    {
+        $this->area = $area;
+        $this->standard = $standard;
+        $this->pump_power = ($this->area * $this->standard) / 2000;
+        return $this->pump_power;
+    }
+
+    private function get_pump_models()
+    {
+        return [
+>>>>>>> Stashed changes
             1 => [
                 "name" => "Viessmann",
                 "id" => 2109,
@@ -128,7 +146,11 @@ class calculator
                 "price" => 2600,
             ],
         ];
+<<<<<<< Updated upstream
         //
+=======
+    }
+>>>>>>> Stashed changes
 
         // Moce pomp potrzebne do obliczeń
         $pump_one = 8.4;
@@ -161,6 +183,7 @@ class calculator
             });
             echo '<pre>'; print_r($results); echo '</pre>';
         }
+<<<<<<< Updated upstream
         //
         return $pump;
     }
@@ -173,6 +196,87 @@ function onMailError( $wp_error ) {
     print_r($wp_error);
     echo "</pre>";
 }    
+=======
+    }
+
+    public function deliver_mail()
+    {
+        // If the submit button is clicked, send the email
+        if (isset($_POST['cf-submitted'])) {
+
+            // Sanitize form values
+            $name = sanitize_text_field($_POST["cf-name"]);
+            $email = sanitize_email($_POST["cf-email"]);
+            $subject = sanitize_text_field($_POST["cf-subject"]);
+            $message = esc_textarea($_POST["cf-message"]);
+
+            // Get the blog administrator's email address
+            $to = get_option('admin_email');
+
+            $headers = "From: $name <$email>" . "\r\n";
+
+            // If email has been process for sending, display a success message
+            if (wp_mail($to, $subject, $message, $headers)) {
+                echo '<div>';
+                echo '<p>Thanks for contacting me, expect a response soon.</p>';
+                echo '</div>';
+            } else {
+                echo 'An unexpected error occurred';
+            }
+        }
+    }
+}
+
+function html_calculation_code()
+{
+    if (!isset($_POST['cf-submitted']) && !isset($_POST['cf-count'])) {
+        echo '<form action="' . esc_url($_SERVER['REQUEST_URI']) . '" method="post">';
+
+        echo '<p>';
+        echo 'Powierzchnia ogrzewania [m2] (wymagane) <br/>';
+        echo '<input type="text" name="cf-power" pattern="[0-9]+(\.[0-9]{1,2})?" value="' . (isset($_POST["cf-power"]) ? esc_attr($_POST["cf-power"]) : '') . '" size="40" />';
+        echo '</p>';
+
+        echo '<p>';
+        echo 'Standard wykonania [kWh/m2 rok] (wymagane) <br/>';
+        echo '<input type="text" name="cf-standard" pattern="[0-9]+(\.[0-9]{1,2})?" value="' . (isset($_POST["cf-standard"]) ? esc_attr($_POST["cf-standard"]) : '') . '" size="40" />';
+        echo '</p>';
+
+        echo '<p><input type="submit" name="cf-count" value="Oblicz"></p>';
+        echo '</form>';
+    }
+}
+
+function html_form_code()
+{
+    if (isset($_POST['cf-count'])) {
+        echo '<form action="' . esc_url($_SERVER['REQUEST_URI']) . '" method="post">';
+
+        echo '<p>';
+        echo 'Twoje imię (wymagane) <br/>';
+        echo '<input type="text" name="cf-name" pattern="[a-zA-Z ]+" value="' . (isset($_POST["cf-name"]) ? esc_attr($_POST["cf-name"]) : '') . '" size="40" />';
+        echo '</p>';
+
+        echo '<p>';
+        echo 'Twój Email (wymagane) <br/>';
+        echo '<input type="email" name="cf-email" value="' . (isset($_POST["cf-email"]) ? esc_attr($_POST["cf-email"]) : '') . '" size="40" />';
+        echo '</p>';
+
+        echo '<p>';
+        echo 'Temat (wymagane) <br/>';
+        echo '<input type="text" name="cf-subject" pattern="[a-zA-Z ]+" value="' . (isset($_POST["cf-subject"]) ? esc_attr($_POST["cf-subject"]) : '') . '" size="40" />';
+        echo '</p>';
+
+        echo '<p>';
+        echo 'Twoja wiadomość (wymagane) <br/>';
+        echo '<textarea rows="10" cols="35" name="cf-message">' . (isset($_POST["cf-message"]) ? esc_attr($_POST["cf-message"]) : '') . '</textarea>';
+        echo '</p>';
+
+        echo '<p><input type="submit" name="cf-submitted" value="Send"></p>';
+        echo '</form>';
+    }
+}
+>>>>>>> Stashed changes
 
 function cf_shortcode()
 {
@@ -189,5 +293,17 @@ function cf_shortcode()
 	return ob_get_clean();
 }
 
+<<<<<<< Updated upstream
 add_shortcode( 'power_calculator', 'cf_shortcode' );
+=======
+add_action('wp_mail_failed', 'onMailError', 10, 1);
+function onMailError($wp_error)
+{
+    echo "<pre>";
+    print_r($wp_error);
+    echo "</pre>";
+}
+
+add_shortcode('power_calculator', 'cf_shortcode');
+>>>>>>> Stashed changes
 ?>
