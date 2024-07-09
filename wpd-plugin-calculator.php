@@ -2,7 +2,7 @@
 /*
 Plugin Name: Power calculator
 Description: Simple calculator and correspondence plugin
-Version: 1.0
+Version: 1.1
 Author: Przemysław Kijania
 Author URI: https://przemyslawkijania.pl/
 */
@@ -93,29 +93,26 @@ class Calculator
         }
     }
 
-    public function deliver_mail()
+    public function deliver_mail($power, $pump_info)
     {
-        // If the submit button is clicked, send the email
         if (isset($_POST['cf-submitted'])) {
-
-            // Sanitize form values
             $name = sanitize_text_field($_POST["cf-name"]);
             $email = sanitize_email($_POST["cf-email"]);
             $subject = sanitize_text_field($_POST["cf-subject"]);
             $message = esc_textarea($_POST["cf-message"]);
 
-            // Get the blog administrator's email address
-            $to = get_option('admin_email');
+            $message .= "\n\nSzacowana ilość mocy potrzebna do ogrzania domu to: " . $power . " kW\n";
+            $message .= "Odpowiednia pompa ciepła: \n" . print_r(json_decode($pump_info, true), true);
 
+            $to = get_option('admin_email');
             $headers = "From: $name <$email>" . "\r\n";
 
-            // If email has been process for sending, display a success message
             if (wp_mail($to, $subject, $message, $headers)) {
                 echo '<div>';
-                echo '<p>Thanks for contacting me, expect a response soon.</p>';
+                echo '<p>Dziękujemy za kontakt, odpowiedź nadejdzie wkrótce.</p>';
                 echo '</div>';
             } else {
-                echo 'An unexpected error occurred';
+                echo 'Wystąpił nieznany błąd';
             }
         }
     }
@@ -123,7 +120,7 @@ class Calculator
 
 function html_calculation_code()
 {
-    if (!isset($_POST['cf-submitted']) && !isset($_POST['cf-count'])) {
+    if (!isset($_POST['cf-count']) && !isset($_POST['cf-submitted']) && !isset($_POST['cf-result'])) {
         echo '<form action="' . esc_url($_SERVER['REQUEST_URI']) . '" method="post">';
 
         echo '<p>';
@@ -141,18 +138,18 @@ function html_calculation_code()
     }
 }
 
-function html_form_code()
+function html_form_code($power = null, $pump_info = null)
 {
-    if (isset($_POST['cf-count'])) {
+    if (isset($_POST['cf-count']) && !isset($_POST['cf-result']) && !isset($_POST['cf-submitted'])) {
         echo '<form action="' . esc_url($_SERVER['REQUEST_URI']) . '" method="post">';
 
         echo '<p>';
-        echo 'Twoje imię (wymagane) <br/>';
+        echo 'Twoje imię i nazwisko (wymagane) <br/>';
         echo '<input type="text" name="cf-name" pattern="[a-zA-Z ]+" value="' . (isset($_POST["cf-name"]) ? esc_attr($_POST["cf-name"]) : '') . '" size="40" />';
         echo '</p>';
 
         echo '<p>';
-        echo 'Twój Email (wymagane) <br/>';
+        echo 'Twój email (wymagane) <br/>';
         echo '<input type="email" name="cf-email" value="' . (isset($_POST["cf-email"]) ? esc_attr($_POST["cf-email"]) : '') . '" size="40" />';
         echo '</p>';
 
@@ -166,7 +163,29 @@ function html_form_code()
         echo '<textarea rows="10" cols="35" name="cf-message">' . (isset($_POST["cf-message"]) ? esc_attr($_POST["cf-message"]) : '') . '</textarea>';
         echo '</p>';
 
-        echo '<p><input type="submit" name="cf-submitted" value="Send"></p>';
+        echo '<input type="hidden" name="cf-power" value="' . esc_attr($power) . '" />';
+        echo '<input type="hidden" name="cf-pump-info" value="' . esc_attr(json_encode($pump_info)) . '" />';
+
+        echo '<p><input type="submit" name="cf-submitted" value="Wyślij"></p>';
+        echo '</form>';
+    }
+}
+
+function html_results_code($power, $pump_info)
+{
+    if (isset($_POST['cf-submitted']) && !isset($_POST['cf-result'])) {
+        echo '<form action="' . esc_url($_SERVER['REQUEST_URI']) . '" method="post">';
+
+        echo '<p>';
+        echo 'Szacowana ilość mocy potrzebna do ogrzania domu to: ' . esc_html($power) . ' kW<br>';
+        echo 'Odpowiednia pompa ciepła: <br>';
+        echo '<pre>';
+        $pump_info = json_decode($pump_info, true);
+        print_r($pump_info);
+        echo '</pre>';
+        echo '</p>';
+
+        echo '<p><input type="submit" name="cf-result" value="Wróć na początek"></p>';
         echo '</form>';
     }
 }
@@ -179,17 +198,15 @@ function cf_shortcode()
     if (isset($_POST['cf-count'])) {
         $power = $result->calculate_power($_POST['cf-power'], $_POST['cf-standard']);
         $pump_info = $result->get_pump_info($power);
-
-        echo 'Szacowana ilość mocy potrzebna do ogrzania domu to: ' . $power . ' kW<br>';
-        echo 'Odpowiednia pompa ciepła: <br>';
-        echo '<pre>';
-        print_r($pump_info);
-        echo '</pre>';
+        html_form_code($power, $pump_info);
+    } else if (isset($_POST['cf-submitted'])) {
+        $power = $_POST['cf-power'];
+        $pump_info = $_POST['cf-pump-info'];
+        $result->deliver_mail($power, $pump_info);
+        html_results_code($power, $pump_info);
+    } else {
+        html_calculation_code();
     }
-
-    $result->deliver_mail();
-    html_calculation_code();
-    html_form_code();
 
     return ob_get_clean();
 }
