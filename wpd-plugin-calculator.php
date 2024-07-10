@@ -102,7 +102,7 @@ class Calculator
             $message = esc_textarea($_POST["cf-message"]);
 
             $message .= "\n\nSzacowana ilość mocy potrzebna do ogrzania domu to: " . $power . " kW\n";
-            $message .= "Odpowiednia pompa ciepła: \n" . print_r(json_decode($pump_info, true), true);
+            $message .= "Odpowiednia pompa ciepła: \n" . $pump_info;
 
             $to = get_option('admin_email');
             $headers = "From: $name <$email>" . "\r\n";
@@ -202,16 +202,11 @@ function html_results_code($power, $pump_info)
         echo '<p>';
         echo 'Szacowana ilość mocy potrzebna do ogrzania domu to: ' . esc_html($power) . ' kW<br>';
         echo 'Odpowiednia pompa ciepła: <br>';
-        echo '<ul>';
-        $pump_info = json_decode($pump_info, true);
-        if (is_array($pump_info)) {
-            foreach ($pump_info as $info) {
-                echo '<li>Nazwa: ' . esc_html($info['name']) . ', Moc: ' . esc_html($info['power']) . ' kW, Cena: ' . esc_html($info['price']) . ' PLN</li>';
-            }
-        } else {
-            echo '<li>' . esc_html($pump_info) . '</li>';
-        }
-        echo '</ul>';
+
+        echo '<pre>';
+        print_r($pump_info);
+        echo '</pre>';
+
         echo '</p>';
 
         echo '<p><input type="submit" name="cf-result" value="Wróć na początek"></p>';
