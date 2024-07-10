@@ -2,7 +2,7 @@
 /*
 Plugin Name: Power calculator
 Description: Simple calculator and correspondence plugin
-Version: 1.2
+Version: 1.3
 Author: Przemysław Kijania
 Author URI: https://przemyslawkijania.pl/
 */
@@ -25,28 +25,28 @@ class Calculator
     {
         return [
             1 => [
-                "name" => "Viessmann",
-                "id" => 2109,
-                "power" => 8.4,
-                "price" => 5000,
+                "Nazwa" => "Viessmann",
+                "Id" => 2109,
+                "Moc" => 8.4,
+                "Cena [PLN]" => 5000,
             ],
             2 => [
-                "name" => "Viessmann",
-                "id" => 2110,
-                "power" => 3.4,
-                "price" => 3000,
+                "Nazwa" => "Panasonic",
+                "Id" => 2110,
+                "Moc" => 3.4,
+                "Cena [PLN]" => 3000,
             ],
             3 => [
-                "name" => "Viessmann",
-                "id" => 2111,
-                "power" => 6.5,
-                "price" => 4500,
+                "Nazwa" => "Viessmann",
+                "Id" => 2111,
+                "Moc" => 6.5,
+                "Cena [PLN]" => 4500,
             ],
             4 => [
-                "name" => "Viessmann",
-                "id" => 2112,
-                "power" => 2.1,
-                "price" => 2600,
+                "Nazwa" => "Panasonic",
+                "Id" => 2112,
+                "Moc" => 2.1,
+                "Cena [PLN]" => 2600,
             ],
         ];
     }
@@ -55,7 +55,7 @@ class Calculator
     {
         $pumps_array = [];
         foreach ($pumps_models as $pump) {
-            $pumps_array[] = $pump['power'];
+            $pumps_array[] = $pump['Moc'];
         }
         return $pumps_array;
     }
@@ -70,7 +70,7 @@ class Calculator
         }
 
         if (empty($list)) {
-            return 'Brak odpowiedniej pompy ciepła';
+            return 'Brak odpowiedniej pompy ciepla';
         } else {
             return min($list) + $pump_power;
         }
@@ -82,10 +82,10 @@ class Calculator
         $pumps_array = $this->get_pumps_array($pumps_models);
         $suitable_pump_power = $this->find_suitable_pump($pumps_array, $pump_power);
 
-        if ($suitable_pump_power === 'Brak odpowiedniej pompy ciepła') {
+        if ($suitable_pump_power === 'Brak odpowiedniej pompy ciepla') {
             return $suitable_pump_power;
         } else {
-            $search_pumps = ["power" => $suitable_pump_power];
+            $search_pumps = ["Moc" => $suitable_pump_power];
             $results = array_filter($pumps_models, function ($pumps_models) use ($search_pumps) {
                 return count(array_intersect_assoc($search_pumps, $pumps_models)) == count($search_pumps);
             });
@@ -208,8 +208,6 @@ function html_results_code($power, $pump_info)
         echo '</pre>';
 
         echo '</p>';
-
-        echo '<p><input type="submit" name="cf-result" value="Wróć na początek"></p>';
         echo '</form>';
     }
 }
