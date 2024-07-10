@@ -252,21 +252,3 @@ function onMailError($wp_error)
 
 add_shortcode('power_calculator', 'cf_shortcode');
 ?>
-
-<script>
-function validateForm() {
-    var valid = true;
-    var requiredFields = document.querySelectorAll('input[required], textarea[required]');
-
-    requiredFields.forEach(function(field) {
-        if (!field.value) {
-            valid = false;
-            field.nextElementSibling.style.display = 'inline';
-        } else {
-            field.nextElementSibling.style.display = 'none';
-        }
-    });
-
-    return valid;
-}
-</script>
