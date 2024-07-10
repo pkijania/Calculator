@@ -102,14 +102,14 @@ class Calculator
             $message = esc_textarea($_POST["cf-message"]);
 
             $message .= "\n\nSzacowana ilość mocy potrzebna do ogrzania domu to: " . $power . " kW\n";
-            $message .= "Odpowiednia pompa ciepła: \n" . print_r(json_decode($pump_info, true), true);
+            $message .= "Odpowiednia pompa ciepła: \n" . $pump_info;
 
             $to = get_option('admin_email');
             $headers = "From: $name <$email>" . "\r\n";
 
             if (wp_mail($to, $subject, $message, $headers)) {
                 echo '<div>';
-                echo '<p>Dziękujemy za kontakt, odpowiedź nadejdzie wkrótce.</p>';
+                echo '<h4>Wyniki zostały wysłane na podany email.</h4>';
                 echo '</div>';
             } else {
                 echo 'Wystąpił nieznany błąd';
@@ -122,6 +122,18 @@ function html_calculation_code()
 {
     if (!isset($_POST['cf-count']) && !isset($_POST['cf-submitted']) && !isset($_POST['cf-result'])) {
         echo '<form action="' . esc_url($_SERVER['REQUEST_URI']) . '" method="post">';
+
+        echo '<h4>';
+        echo 'Standard wykonania | zapotrzebowanie na ciepło [kWh/m2 rok] <br/>';
+        echo '</h4>';
+
+        echo '<p>';
+        echo 'Starszy dom bez ocieplenia - od 170 do 200 <br/>';
+        echo 'Starszy dom z ociepleniem - od 100 do 160 <br/>';
+        echo 'Dom budowany obecnie - od 70 do 90 <br/>';
+        echo 'Dom energooszczędny - od 60 do 70 <br/>';
+        echo 'Dom pasywny - 15 <br/>';
+        echo '</p>';
 
         echo '<p>';
         echo 'Powierzchnia ogrzewania [m2] (wymagane) <br/>';
@@ -143,6 +155,10 @@ function html_form_code($power = null, $pump_info = null)
     if (isset($_POST['cf-count']) && !isset($_POST['cf-result']) && !isset($_POST['cf-submitted'])) {
         echo '<form action="' . esc_url($_SERVER['REQUEST_URI']) . '" method="post">';
 
+        echo '<h4>';
+        echo 'Chcesz poznać szacowaną moc i cenę pompy ciepła? Wprowadź swoje dane, wyniki zostaną przesłane drogą mailową oraz pojawią się na stronie. <br/>';
+        echo '</h4>';
+
         echo '<p>';
         echo 'Twoje imię i nazwisko (wymagane) <br/>';
         echo '<input type="text" name="cf-name" pattern="[a-zA-Z ]+" value="' . (isset($_POST["cf-name"]) ? esc_attr($_POST["cf-name"]) : '') . '" size="40" />';
@@ -159,7 +175,7 @@ function html_form_code($power = null, $pump_info = null)
         echo '</p>';
 
         echo '<p>';
-        echo 'Twoja wiadomość (wymagane) <br/>';
+        echo 'Twoja wiadomość <br/>';
         echo '<textarea rows="10" cols="35" name="cf-message">' . (isset($_POST["cf-message"]) ? esc_attr($_POST["cf-message"]) : '') . '</textarea>';
         echo '</p>';
 
@@ -167,7 +183,6 @@ function html_form_code($power = null, $pump_info = null)
         echo '<input type="hidden" name="cf-pump-info" value="' . esc_attr(json_encode($pump_info)) . '" />';
 
         echo '<p><input type="submit" name="cf-submitted" value="Wyślij"></p>';
-        echo '</form>';
     }
 }
 
@@ -180,8 +195,9 @@ function html_results_code($power, $pump_info)
         echo 'Szacowana ilość mocy potrzebna do ogrzania domu to: ' . esc_html($power) . ' kW<br>';
         echo 'Odpowiednia pompa ciepła: <br>';
         echo '<pre>';
-        $pump_info = json_decode($pump_info, true);
+
         print_r($pump_info);
+
         echo '</pre>';
         echo '</p>';
 
@@ -204,6 +220,8 @@ function cf_shortcode()
         $pump_info = $_POST['cf-pump-info'];
         $result->deliver_mail($power, $pump_info);
         html_results_code($power, $pump_info);
+    } else if (isset($_POST['cf-result'])) {
+        html_calculation_code();
     } else {
         html_calculation_code();
     }
