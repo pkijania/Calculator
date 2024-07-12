@@ -106,13 +106,18 @@ class Calculator
             $message = esc_textarea($_POST["cf-message"]);
 
             $message .= "\nWyniki dla wyceny pompy ciepła:";
-            $message .= "\nSzacowana ilość mocy potrzebna do ogrzania domu to: " . $power . " kW";
-            $message .= "\nSzczegóły dotyczące wybranej pompy ciepła";
-            $message .= "\nNazwa: " . $name_of_pump;
-            $message .= "\nId: " . $id;
-            $message .= "\nMoc: " . $efficiency . " kW";
-            $message .= "\nCena: " . $price . " zł";
-            $message .= "\nLink do strony producenta: " . $link;
+            if (empty($name_of_pump)) {
+                $message .= '\nBrak odpowiedniej pompy ciepla';
+            }
+            else {
+                $message .= "\nSzacowana ilość mocy potrzebna do ogrzania domu to: " . $power . " kW";
+                $message .= "\nSzczegóły dotyczące wybranej pompy ciepła";
+                $message .= "\nNazwa: " . $name_of_pump;
+                $message .= "\nId: " . $id;
+                $message .= "\nMoc: " . $efficiency . " kW";
+                $message .= "\nCena: " . $price . " zł";
+                $message .= "\nLink do strony producenta: " . $link;
+            }
             $subject = "Wycena pompy ciepła";
 
             $to = get_option('admin_email');
@@ -214,27 +219,32 @@ function html_results_code($power, $name_of_pump, $id, $efficiency, $price, $lin
     if (isset($_POST['cf-submitted']) && !isset($_POST['cf-result'])) {
         echo '<form action="' . esc_url($_SERVER['REQUEST_URI']) . '" method="post">';
 
-        echo '<p>';
-        echo 'Szacowana ilość mocy potrzebna do ogrzania domu to: ' . esc_html($power) . ' kW<br>';
-        echo 'Szczegóły dotyczące wybranej pompy ciepła';
-
-        echo '<pre>';
-        echo '<input value="Nazwa" readonly />';
-        echo '<input value="Numer id" readonly />';
-        echo '<input value="Moc w kW" readonly />';
-        echo '<input value="Cena w zł" readonly />';
-        echo '<input value="Link do strony producenta" readonly />';
-        echo '</pre>';
-
-        echo '<pre>';
-        echo '<input name="cf-div-name" value="' . esc_attr($name_of_pump) . '" readonly />';
-        echo '<input name="cf-div-id" value="' . esc_attr($id) . '" readonly />';
-        echo '<input name="cf-div-efficieny" value="' . esc_attr($efficiency) . '" readonly />';
-        echo '<input name="cf-div-price" value="' . esc_attr($price) . '" readonly />';
-        echo '<input name="cf-div-link" value="' . esc_attr($link) . '" readonly />';
-        echo '</pre>';
-
-        echo '</p>';
+        if (empty($name_of_pump)) {
+            echo 'Brak odpowiedniej pompy ciepla';
+        }
+        else {
+            echo '<p>';
+            echo 'Szacowana ilość mocy potrzebna do ogrzania domu to: ' . esc_html($power) . ' kW<br>';
+            echo 'Szczegóły dotyczące wybranej pompy ciepła';
+    
+            echo '<pre>';
+            echo '<input value="Nazwa" readonly />';
+            echo '<input value="Numer id" readonly />';
+            echo '<input value="Moc w kW" readonly />';
+            echo '<input value="Cena w zł" readonly />';
+            echo '<input value="Link do strony producenta" readonly />';
+            echo '</pre>';
+    
+            echo '<pre>';
+            echo '<input name="cf-div-name" value="' . esc_attr($name_of_pump) . '" readonly />';
+            echo '<input name="cf-div-id" value="' . esc_attr($id) . '" readonly />';
+            echo '<input name="cf-div-efficieny" value="' . esc_attr($efficiency) . '" readonly />';
+            echo '<input name="cf-div-price" value="' . esc_attr($price) . '" readonly />';
+            echo '<input name="cf-div-link" value="' . esc_attr($link) . '" readonly />';
+            echo '</pre>';
+    
+            echo '</p>';
+        }
         echo '</form>';
     }
 }
