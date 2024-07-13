@@ -2,7 +2,7 @@
 /*
 Plugin Name: Power calculator
 Description: Simple calculator and correspondence plugin
-Version: 1.5
+Version: 1.6
 Author: Przemysław Kijania
 Author URI: https://przemyslawkijania.pl/
 */
@@ -97,7 +97,7 @@ class Calculator
         }
     }
 
-    public function deliver_mail($power, $name_of_pump, $id, $efficiency, $price, $link)
+    public function deliver_mail($power, $area, $standard, $name_of_pump, $id, $efficiency, $price, $link)
     {
         if (isset($_POST['cf-submitted'])) {
             $name = sanitize_text_field($_POST["cf-name"]);
@@ -110,13 +110,13 @@ class Calculator
                 $message .= '\nBrak odpowiedniej pompy ciepla';
             }
             else {
-                $message .= "\nSzacowana ilość mocy potrzebna do ogrzania domu to: " . $power . " kW";
+                $message .= 'Dla powierzchni ogrzewania: ' . $area . ' m2 oraz standardu wykonania: ' . $standard . ' kWh/m2 szacowana ilość mocy potrzebna do ogrzania domu to: ' . $power . ' kW';
                 $message .= "\nSzczegóły dotyczące wybranej pompy ciepła";
                 $message .= "\nNazwa: " . $name_of_pump;
                 $message .= "\nId: " . $id;
                 $message .= "\nMoc: " . $efficiency . " kW";
                 $message .= "\nCena: " . $price . " zł";
-                $message .= "\nLink do strony producenta: " . $link;
+                $message .= "\nLink do strony producenta: ". $link;
             }
             $subject = "Wycena pompy ciepła";
 
@@ -158,8 +158,8 @@ function html_calculation_code()
 
         echo '<p>';
         echo 'Powierzchnia ogrzewania [m2] (wymagane) <br/>';
-        echo '<input type="range" name="cf-power" min="0" max="1000" value="' . (isset($_POST["cf-power"]) ? esc_attr($_POST["cf-power"]) : '0') . '" size="40" oninput="this.nextElementSibling.value = this.value" />';
-        echo '<output>' . (isset($_POST["cf-power"]) ? esc_attr($_POST["cf-power"]) : '0') . '</output>';
+        echo '<input type="range" name="cf-area" min="0" max="1000" value="' . (isset($_POST["cf-area"]) ? esc_attr($_POST["cf-area"]) : '0') . '" size="40" oninput="this.nextElementSibling.value = this.value" />';
+        echo '<output>' . (isset($_POST["cf-area"]) ? esc_attr($_POST["cf-area"]) : '0') . '</output>';
         echo '<span class="error" style="color:red;display:none">To pole nie może być puste</span>';
         echo '</p>';
 
@@ -175,7 +175,7 @@ function html_calculation_code()
     }
 }
 
-function html_form_code($power = null, $name_of_pump = null, $id = null, $efficiency = null, $price = null, $link = null)
+function html_form_code($power = null, $area = null, $standard = null, $name_of_pump = null, $id = null, $efficiency = null, $price = null, $link = null)
 {
     if (isset($_POST['cf-count']) && !isset($_POST['cf-result']) && !isset($_POST['cf-submitted'])) {
         echo '<form action="' . esc_url($_SERVER['REQUEST_URI']) . '" method="post" onsubmit="return validateForm()">';
@@ -203,6 +203,8 @@ function html_form_code($power = null, $name_of_pump = null, $id = null, $effici
         echo '</p>';
 
         echo '<input type="hidden" name="cf-power" value="' . esc_attr($power) . '" />';
+        echo '<input type="hidden" name="cf-area" value="' . esc_attr($area) . '" />';
+        echo '<input type="hidden" name="cf-standard" value="' . esc_attr($standard) . '" />';
         echo '<input type="hidden" name="cf-div-name" value="' . esc_attr($name_of_pump) . '" />';
         echo '<input type="hidden" name="cf-div-id" value="' . esc_attr($id) . '" />';
         echo '<input type="hidden" name="cf-div-efficieny" value="' . esc_attr($efficiency) . '" />';
@@ -214,7 +216,7 @@ function html_form_code($power = null, $name_of_pump = null, $id = null, $effici
     }
 }
 
-function html_results_code($power, $name_of_pump, $id, $efficiency, $price, $link)
+function html_results_code($power, $area, $standard, $name_of_pump, $id, $efficiency, $price, $link)
 {
     if (isset($_POST['cf-submitted']) && !isset($_POST['cf-result'])) {
         echo '<form action="' . esc_url($_SERVER['REQUEST_URI']) . '" method="post">';
@@ -224,17 +226,17 @@ function html_results_code($power, $name_of_pump, $id, $efficiency, $price, $lin
         }
         else {
             echo '<p>';
-            echo 'Szacowana ilość mocy potrzebna do ogrzania domu to: ' . esc_html($power) . ' kW<br>';
+            echo 'Dla powierzchni ogrzewania: ' . esc_html($area) . ' m2 oraz standardu wykonania: ' . esc_html($standard) . ' kWh/m2 szacowana ilość mocy potrzebna do ogrzania domu to: ' . esc_html($power) . ' kW<br>';
             echo 'Szczegóły dotyczące wybranej pompy ciepła';
-    
+
             echo '<pre>';
             echo '<input value="Nazwa" readonly />';
             echo '<input value="Numer id" readonly />';
             echo '<input value="Moc w kW" readonly />';
             echo '<input value="Cena w zł" readonly />';
-            echo '<input value="Link do strony producenta" readonly />';
+            echo '<input value="Strona producenta" readonly />';
             echo '</pre>';
-    
+
             echo '<pre>';
             echo '<input name="cf-div-name" value="' . esc_attr($name_of_pump) . '" readonly />';
             echo '<input name="cf-div-id" value="' . esc_attr($id) . '" readonly />';
@@ -242,7 +244,6 @@ function html_results_code($power, $name_of_pump, $id, $efficiency, $price, $lin
             echo '<input name="cf-div-price" value="' . esc_attr($price) . '" readonly />';
             echo '<input name="cf-div-link" value="' . esc_attr($link) . '" readonly />';
             echo '</pre>';
-    
             echo '</p>';
         }
         echo '</form>';
@@ -254,8 +255,10 @@ function cf_shortcode()
     ob_start();
     $result = new Calculator();
     if (isset($_POST['cf-count'])) {
-        $power = $result->calculate_power($_POST['cf-power'], $_POST['cf-standard']);
+        $power = $result->calculate_power($_POST['cf-area'], $_POST['cf-standard']);
         $pump_info = $result->get_pump_info($power);
+        $area = $_POST['cf-area'];
+        $standard = $_POST['cf-standard'];
 
         if (is_array($pump_info) && !empty($pump_info)) {
             $pump_info = reset($pump_info);
@@ -272,17 +275,18 @@ function cf_shortcode()
             $link = '';
         }
 
-        html_form_code($power, $name_of_pump, $id, $efficiency, $price, $link);
+        html_form_code($power, $area, $standard, $name_of_pump, $id, $efficiency, $price, $link);
     } else if (isset($_POST['cf-submitted'])) {
-        $power = $_POST['cf-power'];
-        $pump_info = json_decode(stripslashes($_POST['cf-pump-info']), true);
+        $power = $result->calculate_power($_POST['cf-area'], $_POST['cf-standard']);
+        $area = $_POST['cf-area'];
+        $standard = $_POST['cf-standard'];
         $name_of_pump = $_POST['cf-div-name'];
         $id = $_POST['cf-div-id'];
         $efficiency = $_POST['cf-div-efficieny'];
         $price = $_POST['cf-div-price'];
         $link = $_POST['cf-div-link'];
-        $result->deliver_mail($power, $name_of_pump, $id, $efficiency, $price, $link);
-        html_results_code($power, $name_of_pump, $id, $efficiency, $price, $link);
+        $result->deliver_mail($power, $area, $standard, $name_of_pump, $id, $efficiency, $price, $link);
+        html_results_code($power, $area, $standard, $name_of_pump, $id, $efficiency, $price, $link);
     } else if (isset($_POST['cf-result'])) {
         html_calculation_code();
     } else {
