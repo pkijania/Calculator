@@ -2,7 +2,7 @@
 /*
 Plugin Name: Power calculator
 Description: Simple calculator and correspondence plugin
-Version: 1.6
+Version: 1.7
 Author: Przemysław Kijania
 Author URI: https://przemyslawkijania.pl/
 */
@@ -25,32 +25,46 @@ class Calculator
     {
         return [
             1 => [
-                "Nazwa" => "Viessmann",
-                "Id" => 2109,
-                "Moc" => 8.4,
-                "Cena [PLN]" => 5000,
-                "Link" => "https://www.viessmann.pl/pl/produkty/pompy-ciepla/vitocal-222-s.html",
+                "Nazwa" => "Viessmann Vitocal 200-G",
+                "Id" => "Z026802",
+                "Moc" => 5.8,
+                "Cena [PLN]" => 28176.64,
+                "Link" => "https://www.viessmann.pl/pl/produkty/pompy-ciepla/vitocal-200-g.html",
             ],
             2 => [
-                "Nazwa" => "Panasonic",
-                "Id" => 2110,
-                "Moc" => 3.4,
-                "Cena [PLN]" => 3000,
-                "Link" => "https://www.viessmann.pl/pl/produkty/pompy-ciepla/vitocal-222-s.html",
+                "Nazwa" => "Viessmann Vitocal 300-G",
+                "Id" => "Z026796",
+                "Moc" => 7.4,
+                "Cena [PLN]" => 36709.76,
+                "Link" => "https://www.viessmann.pl/pl/produkty/pompy-ciepla/vitocal-300-g.html",
             ],
             3 => [
-                "Nazwa" => "Viessmann",
-                "Id" => 2111,
-                "Moc" => 6.5,
-                "Cena [PLN]" => 4500,
-                "Link" => "https://www.viessmann.pl/pl/produkty/pompy-ciepla/vitocal-222-s.html",
+                "Nazwa" => "Vaillant FlexoTHERM exclusive",
+                "Id" => "0010044243",
+                "Moc" => 11.2,
+                "Cena [PLN]" => 38992.00,
+                "Link" => "https://www.vaillant.pl/klienci-indywidualni/produkty-i-systemy/flexotherm-exclusive-36289.html",
             ],
             4 => [
-                "Nazwa" => "Panasonic",
-                "Id" => 2112,
-                "Moc" => 2.1,
-                "Cena [PLN]" => 2600,
-                "Link" => "https://www.viessmann.pl/pl/produkty/pompy-ciepla/vitocal-222-s.html",
+                "Nazwa" => "Vaillant FlexoCOMPACT exclusive",
+                "Id" => "0010044212",
+                "Moc" => 8.8,
+                "Cena [PLN]" => 45845.00,
+                "Link" => "https://www.vaillant.pl/klienci-indywidualni/produkty-i-systemy/flexocompact-exclusive-36288.html",
+            ],
+            5 => [
+                "Nazwa" => "Alpha innotec alterra SW 142H3",
+                "Id" => "10070542",
+                "Moc" => 13.5,
+                "Cena [PLN]" => 35500.00,
+                "Link" => "https://alphainnotec.pl/produkty/alterra/sw/h/142h3/",
+            ],
+            6 => [
+                "Nazwa" => "Alpha innotec alterra SWC 102H3",
+                "Id" => "10068342",
+                "Moc" => 9.3,
+                "Cena [PLN]" => 32400.00,
+                "Link" => "https://alphainnotec.pl/produkty/alterra/swc/h/102h3/",
             ],
         ];
     }
@@ -107,11 +121,11 @@ class Calculator
 
             $message .= "\nWyniki dla wyceny pompy ciepła:";
             if (empty($name_of_pump)) {
-                $message .= '\nBrak odpowiedniej pompy ciepla';
+                $message .= "\nDla powierzchni ogrzewania: " . $area . " m2 oraz standardu wykonania: " . $standard . " kWh/m2 brak odpowiedniej pompy ciepla";
             }
             else {
-                $message .= 'Dla powierzchni ogrzewania: ' . $area . ' m2 oraz standardu wykonania: ' . $standard . ' kWh/m2 szacowana ilość mocy potrzebna do ogrzania domu to: ' . $power . ' kW';
-                $message .= "\nSzczegóły dotyczące wybranej pompy ciepła";
+                $message .= "\nDla powierzchni ogrzewania: " . $area . " m2 oraz standardu wykonania: " . $standard . " kWh/m2 szacowana ilość mocy potrzebna do ogrzania domu to: " . $power . " kW";
+                $message .= "\nSzczegóły dotyczące wybranej pompy ciepła:";
                 $message .= "\nNazwa: " . $name_of_pump;
                 $message .= "\nId: " . $id;
                 $message .= "\nMoc: " . $efficiency . " kW";
@@ -126,7 +140,7 @@ class Calculator
 
             if (wp_mail($to, $subject, $message, $headers)) {
                 echo '<div>';
-                echo '<h4>Wyniki zostały wysłane na podany email.</h4>';
+                echo "<h4>Wyniki zostały wysłane na podany email.</h4>";
                 echo '</div>';
             } else {
                 echo 'Wystąpił nieznany błąd';
@@ -153,20 +167,20 @@ function html_calculation_code()
         echo '</p>';
 
         echo '<h4>';
-        echo 'Proszę wpisać odpowiednie dane <br/>';
+        echo 'Proszę wprowadzić odpowiednie dane: <br/>';
         echo '</h4>';
 
         echo '<p>';
         echo 'Powierzchnia ogrzewania [m2] (wymagane) <br/>';
-        echo '<input type="range" name="cf-area" min="0" max="1000" value="' . (isset($_POST["cf-area"]) ? esc_attr($_POST["cf-area"]) : '0') . '" size="40" oninput="this.nextElementSibling.value = this.value" />';
-        echo '<output>' . (isset($_POST["cf-area"]) ? esc_attr($_POST["cf-area"]) : '0') . '</output>';
+        echo '<input type="range" name="cf-area" min="10" max="1000" value="' . (isset($_POST["cf-area"]) ? esc_attr($_POST["cf-area"]) : '10') . '" size="40" oninput="this.nextElementSibling.value = this.value" />';
+        echo '<output>' . (isset($_POST["cf-area"]) ? esc_attr($_POST["cf-area"]) : '10') . '</output>';
         echo '<span class="error" style="color:red;display:none">To pole nie może być puste</span>';
         echo '</p>';
 
         echo '<p>';
         echo 'Standard wykonania [kWh/m2 rok] (wymagane) <br/>';
-        echo '<input type="range" name="cf-standard" min="0" max="200" value="' . (isset($_POST["cf-standard"]) ? esc_attr($_POST["cf-standard"]) : '0') . '" size="40" oninput="this.nextElementSibling.value = this.value" />';
-        echo '<output>' . (isset($_POST["cf-standard"]) ? esc_attr($_POST["cf-standard"]) : '0') . '</output>';
+        echo '<input type="range" name="cf-standard" min="5" max="200" value="' . (isset($_POST["cf-standard"]) ? esc_attr($_POST["cf-standard"]) : '5') . '" size="40" oninput="this.nextElementSibling.value = this.value" />';
+        echo '<output>' . (isset($_POST["cf-standard"]) ? esc_attr($_POST["cf-standard"]) : '5') . '</output>';
         echo '<span class="error" style="color:red;display:none">To pole nie może być puste</span>';
         echo '</p>';
 
@@ -222,12 +236,12 @@ function html_results_code($power, $area, $standard, $name_of_pump, $id, $effici
         echo '<form action="' . esc_url($_SERVER['REQUEST_URI']) . '" method="post">';
 
         if (empty($name_of_pump)) {
-            echo 'Brak odpowiedniej pompy ciepla';
+            echo 'Dla powierzchni ogrzewania: ' . esc_html($area) . ' m2 oraz standardu wykonania: ' . esc_html($standard) . ' kWh/m2 brak odpowiedniej pompy ciepla';
         }
         else {
             echo '<p>';
             echo 'Dla powierzchni ogrzewania: ' . esc_html($area) . ' m2 oraz standardu wykonania: ' . esc_html($standard) . ' kWh/m2 szacowana ilość mocy potrzebna do ogrzania domu to: ' . esc_html($power) . ' kW<br>';
-            echo 'Szczegóły dotyczące wybranej pompy ciepła';
+            echo 'Szczegóły dotyczące wybranej pompy ciepła:';
 
             echo '<pre>';
             echo '<input value="Nazwa" readonly />';
