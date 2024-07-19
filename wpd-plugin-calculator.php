@@ -13,6 +13,7 @@ class Calculator
     var $area;
     var $standard;
 
+    // Calculate estimated power needed to heat the building based on the provided data
     public function calculate_power($area, $standard)
     {
         $this->area = $area;
@@ -21,6 +22,7 @@ class Calculator
         return $this->pump_power;
     }
 
+    // Storage of all heat pumps
     private function get_pump_models()
     {
         return [
@@ -69,6 +71,7 @@ class Calculator
         ];
     }
 
+    // Construct a list with powers of all heat pumps
     private function get_pumps_array($pumps_models)
     {
         $pumps_array = [];
@@ -78,22 +81,24 @@ class Calculator
         return $pumps_array;
     }
 
+    // Find a heat pump with power that will be the most suitable for the estimated power
     private function find_suitable_pump($pumps_array, $pump_power)
     {
         $list = [];
         foreach ($pumps_array as &$pump_number) {
-            if ($pump_number > $pump_power) {
-                array_unshift($list, $pump_number - $pump_power);
+            if ($pump_number + 1.5 > $pump_power) {
+                array_unshift($list, ($pump_number + 1.5) - $pump_power);
             }
         }
 
         if (empty($list)) {
             return 'Brak odpowiedniej pompy ciepla';
         } else {
-            return min($list) + $pump_power;
+            return min($list) + $pump_power - 1.5;
         }
     }
 
+    // Search for the selected heat pump in the storage of all heat pumps
     public function get_pump_info($pump_power)
     {
         $pumps_models = $this->get_pump_models();
@@ -111,6 +116,7 @@ class Calculator
         }
     }
 
+    // Send an e-mail both to the admin and to the user that consists of all the provided information, the estimated power needed to heat the building and information about the selected heat pump
     public function deliver_mail($power, $area, $standard, $name_of_pump, $id, $efficiency, $price, $link)
     {
         if (isset($_POST['cf-submitted'])) {
@@ -120,18 +126,26 @@ class Calculator
             $message = esc_textarea($_POST["cf-message"]);
 
             $message .= "\nWyniki dla wyceny pompy ciepła:";
-            if (empty($name_of_pump)) {
-                $message .= "\nDla powierzchni ogrzewania: " . $area . " m2 oraz standardu wykonania: " . $standard . " kWh/m2 brak odpowiedniej pompy ciepla";
+            if ($power > 15) {
+                $message .= "\nDla powierzchni ogrzewania: " . $area . " m2 oraz standardu wykonania: " . $standard . " kWh/m2 szacowana ilość mocy potrzebna do ogrzania domu to: " . $power . " kW";
+                $message .= "\nW celu doboru odpowiedniej pompy ciepła prosimy o bezpośredni kontakt";
             }
             else {
-                $message .= "\nDla powierzchni ogrzewania: " . $area . " m2 oraz standardu wykonania: " . $standard . " kWh/m2 szacowana ilość mocy potrzebna do ogrzania domu to: " . $power . " kW";
-                $message .= "\nSzczegóły dotyczące wybranej pompy ciepła:";
-                $message .= "\nNazwa: " . $name_of_pump;
-                $message .= "\nId: " . $id;
-                $message .= "\nMoc: " . $efficiency . " kW";
-                $message .= "\nCena: " . $price . " zł";
-                $message .= "\nLink do strony producenta: ". $link;
+                if (empty($name_of_pump)) {
+                    $message .= "\nDla powierzchni ogrzewania: " . $area . " m2 oraz standardu wykonania: " . $standard . " kWh/m2 brak odpowiedniej pompy ciepla";
+                    $message .= "\nW celu doboru odpowiedniej pompy ciepła prosimy wprowadzenie innych danych lub o bezpośredni kontakt";
+                }
+                else {
+                    $message .= "\nDla powierzchni ogrzewania: " . $area . " m2 oraz standardu wykonania: " . $standard . " kWh/m2 szacowana ilość mocy potrzebna do ogrzania domu to: " . $power . " kW";
+                    $message .= "\nSzczegóły dotyczące wybranej pompy ciepła:";
+                    $message .= "\nNazwa: " . $name_of_pump;
+                    $message .= "\nId: " . $id;
+                    $message .= "\nMoc: " . $efficiency . " kW";
+                    $message .= "\nCena: " . $price . " zł";
+                    $message .= "\nLink do strony producenta: ". $link;
+                }
             }
+            $message .= "\nWszelkie informacje do korespondencji znajdują się pod podanym linkiem: https://sevro.pl/kontakt/";
             $subject = "Wycena pompy ciepła";
 
             $to = get_option('admin_email');
@@ -149,6 +163,7 @@ class Calculator
     }
 }
 
+// Show the first formula - short description and a slider for data input
 function html_calculation_code()
 {
     if (!isset($_POST['cf-count']) && !isset($_POST['cf-submitted']) && !isset($_POST['cf-result'])) {
@@ -171,17 +186,15 @@ function html_calculation_code()
         echo '</h4>';
 
         echo '<p>';
-        echo 'Powierzchnia ogrzewania [m2] (wymagane) <br/>';
+        echo 'Powierzchnia ogrzewania [m2] <br/>';
         echo '<input type="range" name="cf-area" min="10" max="1000" value="' . (isset($_POST["cf-area"]) ? esc_attr($_POST["cf-area"]) : '10') . '" size="40" oninput="this.nextElementSibling.value = this.value" />';
         echo '<output>' . (isset($_POST["cf-area"]) ? esc_attr($_POST["cf-area"]) : '10') . '</output>';
-        echo '<span class="error" style="color:red;display:none">To pole nie może być puste</span>';
         echo '</p>';
 
         echo '<p>';
-        echo 'Standard wykonania [kWh/m2 rok] (wymagane) <br/>';
+        echo 'Standard wykonania [kWh/m2 rok] <br/>';
         echo '<input type="range" name="cf-standard" min="5" max="200" value="' . (isset($_POST["cf-standard"]) ? esc_attr($_POST["cf-standard"]) : '5') . '" size="40" oninput="this.nextElementSibling.value = this.value" />';
         echo '<output>' . (isset($_POST["cf-standard"]) ? esc_attr($_POST["cf-standard"]) : '5') . '</output>';
-        echo '<span class="error" style="color:red;display:none">To pole nie może być puste</span>';
         echo '</p>';
 
         echo '<p><input type="submit" name="cf-count" value="Oblicz"></p>';
@@ -189,6 +202,7 @@ function html_calculation_code()
     }
 }
 
+// Show the second formula - input fields for information about the client
 function html_form_code($power = null, $area = null, $standard = null, $name_of_pump = null, $id = null, $efficiency = null, $price = null, $link = null)
 {
     if (isset($_POST['cf-count']) && !isset($_POST['cf-result']) && !isset($_POST['cf-submitted'])) {
@@ -230,40 +244,49 @@ function html_form_code($power = null, $area = null, $standard = null, $name_of_
     }
 }
 
+// Show the third formula - the estimated power needed to heat the building and information about the selected heat pump
 function html_results_code($power, $area, $standard, $name_of_pump, $id, $efficiency, $price, $link)
 {
     if (isset($_POST['cf-submitted']) && !isset($_POST['cf-result'])) {
         echo '<form action="' . esc_url($_SERVER['REQUEST_URI']) . '" method="post">';
 
-        if (empty($name_of_pump)) {
-            echo 'Dla powierzchni ogrzewania: ' . esc_html($area) . ' m2 oraz standardu wykonania: ' . esc_html($standard) . ' kWh/m2 brak odpowiedniej pompy ciepla';
+        if ($power > 15) {
+            echo 'Dla powierzchni ogrzewania: ' . esc_html($area) . ' m2 oraz standardu wykonania: ' . esc_html($standard) . ' kWh/m2 szacowana ilość mocy potrzebna do ogrzania domu to: ' . esc_html($power) . ' kW<br>';
+            echo 'W celu doboru odpowiedniej pompy ciepła prosimy o bezpośredni kontakt';
         }
         else {
-            echo '<p>';
-            echo 'Dla powierzchni ogrzewania: ' . esc_html($area) . ' m2 oraz standardu wykonania: ' . esc_html($standard) . ' kWh/m2 szacowana ilość mocy potrzebna do ogrzania domu to: ' . esc_html($power) . ' kW<br>';
-            echo 'Szczegóły dotyczące wybranej pompy ciepła:';
+            if (empty($name_of_pump)) {
+                echo 'Dla powierzchni ogrzewania: ' . esc_html($area) . ' m2 oraz standardu wykonania: ' . esc_html($standard) . ' kWh/m2 brak odpowiedniej pompy ciepla<br>';
+                echo 'W celu doboru odpowiedniej pompy ciepła prosimy wprowadzenie innych danych lub o bezpośredni kontakt';
+            }
+            else {
+                echo '<p>';
+                echo 'Dla powierzchni ogrzewania: ' . esc_html($area) . ' m2 oraz standardu wykonania: ' . esc_html($standard) . ' kWh/m2 szacowana ilość mocy potrzebna do ogrzania domu to: ' . esc_html($power) . ' kW<br>';
+                echo 'Szczegóły dotyczące wybranej pompy ciepła:';
 
-            echo '<pre>';
-            echo '<input value="Nazwa" readonly />';
-            echo '<input value="Numer id" readonly />';
-            echo '<input value="Moc w kW" readonly />';
-            echo '<input value="Cena w zł" readonly />';
-            echo '<input value="Strona producenta" readonly />';
-            echo '</pre>';
+                echo '<pre>';
+                echo '<input value="Nazwa" readonly />';
+                echo '<input value="Numer id" readonly />';
+                echo '<input value="Moc w kW" readonly />';
+                echo '<input value="Cena w zł" readonly />';
+                echo '<input value="Strona producenta" readonly />';
+                echo '</pre>';
 
-            echo '<pre>';
-            echo '<input name="cf-div-name" value="' . esc_attr($name_of_pump) . '" readonly />';
-            echo '<input name="cf-div-id" value="' . esc_attr($id) . '" readonly />';
-            echo '<input name="cf-div-efficieny" value="' . esc_attr($efficiency) . '" readonly />';
-            echo '<input name="cf-div-price" value="' . esc_attr($price) . '" readonly />';
-            echo '<input name="cf-div-link" value="' . esc_attr($link) . '" readonly />';
-            echo '</pre>';
-            echo '</p>';
+                echo '<pre>';
+                echo '<input name="cf-div-name" value="' . esc_attr($name_of_pump) . '" readonly />';
+                echo '<input name="cf-div-id" value="' . esc_attr($id) . '" readonly />';
+                echo '<input name="cf-div-efficieny" value="' . esc_attr($efficiency) . '" readonly />';
+                echo '<input name="cf-div-price" value="' . esc_attr($price) . '" readonly />';
+                echo '<input name="cf-div-link" value="' . esc_attr($link) . '" readonly />';
+                echo '</pre>';
+                echo '</p>';
+            }               
         }
         echo '</form>';
     }
 }
 
+// Launch the program
 function cf_shortcode()
 {
     ob_start();
