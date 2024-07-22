@@ -226,7 +226,7 @@ function html_form_code($power = null, $area = null, $standard = null, $name_of_
 
         echo '<p>';
         echo 'Dodatkowe informacje <br/>';
-        echo '<textarea rows="10" cols="35" name="cf-message">' . (isset($_POST["cf-message"]) ? esc_attr($_POST["cf-message"]) : '') . '</textarea>';
+        echo '<textarea rows="10" cols="100%" name="cf-message">' . (isset($_POST["cf-message"]) ? esc_attr($_POST["cf-message"]) : '') . '</textarea>';
         echo '<span class="error" style="color:red;display:none">To pole nie może być puste</span>';
         echo '</p>';
 
@@ -262,23 +262,12 @@ function html_results_code($power, $area, $standard, $name_of_pump, $id, $effici
             else {
                 echo '<p>';
                 echo 'Dla powierzchni ogrzewania: ' . esc_html($area) . ' m2 oraz standardu wykonania: ' . esc_html($standard) . ' kWh/m2 szacowana ilość mocy potrzebna do ogrzania domu to: ' . esc_html($power) . ' kW<br>';
-                echo 'Szczegóły dotyczące wybranej pompy ciepła:';
-
-                echo '<pre>';
-                echo '<input value="Nazwa" readonly />';
-                echo '<input value="Numer id" readonly />';
-                echo '<input value="Moc w kW" readonly />';
-                echo '<input value="Cena w zł" readonly />';
-                echo '<input value="Strona producenta" readonly />';
-                echo '</pre>';
-
-                echo '<pre>';
-                echo '<input name="cf-div-name" value="' . esc_attr($name_of_pump) . '" readonly />';
-                echo '<input name="cf-div-id" value="' . esc_attr($id) . '" readonly />';
-                echo '<input name="cf-div-efficieny" value="' . esc_attr($efficiency) . '" readonly />';
-                echo '<input name="cf-div-price" value="' . esc_attr($price) . '" readonly />';
-                echo '<input name="cf-div-link" value="' . esc_attr($link) . '" readonly />';
-                echo '</pre>';
+                echo 'Szczegóły dotyczące wybranej pompy ciepła:<br>';
+                echo 'Nazwa: ' . esc_attr($name_of_pump) . '<br>';
+                echo 'Numer id: ' . esc_attr($id) . '<br>';
+                echo 'Moc: ' . esc_attr($efficiency) . ' kW <br>';
+                echo 'Cena: ' . esc_attr($price) . ' zł <br>';
+                echo 'Strona producenta: ' . esc_attr($link) . '<br>';
                 echo '</p>';
             }               
         }
