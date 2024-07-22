@@ -2,7 +2,7 @@
 /*
 Plugin Name: Power calculator
 Description: Simple calculator and correspondence plugin
-Version: 1.7
+Version: 1.8
 Author: Przemysław Kijania
 Author URI: https://przemyslawkijania.pl/
 */
@@ -124,35 +124,50 @@ class Calculator
             $email = sanitize_email($_POST["cf-email"]);
             $subject = sanitize_text_field($_POST["cf-subject"]);
             $message = esc_textarea($_POST["cf-message"]);
+            
+            $variables = array();
+            $variables['area'] = $area;
+            $variables['standard'] = $standard;
+            $variables['power'] = $power;
+            $variables['name'] = $name_of_pump;
+            $variables['id'] = $id;
+            $variables['efficiency'] = $efficiency;
+            $variables['price'] = $price;
+            $variables['link'] = $link;
+            $template = file_get_contents("template.html");
+
+            foreach($variables as $key => $value)
+            {
+                $template = str_replace('{{ '.$key.' }}', $value, $template);
+            }
+
+            echo $template;
 
             $message .= "\nWyniki dla wyceny pompy ciepła:";
-            if ($power > 15) {
-                $message .= "\nDla powierzchni ogrzewania: " . $area . " m2 oraz standardu wykonania: " . $standard . " kWh/m2 szacowana ilość mocy potrzebna do ogrzania domu to: " . $power . " kW";
-                $message .= "\nW celu doboru odpowiedniej pompy ciepła prosimy o bezpośredni kontakt";
+            $message .= "\nDla powierzchni ogrzewania: " . $area . " m2 oraz standardu wykonania: " . $standard . " kWh/m2 szacowana ilość mocy potrzebna do ogrzania domu to: " . $power . " kW";
+            $message .= "\nSzczegóły dotyczące wybranej pompy ciepła:";
+
+            if ($power > 15 || empty($name_of_pump)) {
+                $message .= "\nNie znaleziono odpowiedniej pompy ciepła";
+                $message .= "\nW celu doboru urządzenia prosimy o bezpośredni kontakt lub o wprowadzenie innych danych";
             }
             else {
-                if (empty($name_of_pump)) {
-                    $message .= "\nDla powierzchni ogrzewania: " . $area . " m2 oraz standardu wykonania: " . $standard . " kWh/m2 brak odpowiedniej pompy ciepla";
-                    $message .= "\nW celu doboru odpowiedniej pompy ciepła prosimy wprowadzenie innych danych lub o bezpośredni kontakt";
-                }
-                else {
-                    $message .= "\nDla powierzchni ogrzewania: " . $area . " m2 oraz standardu wykonania: " . $standard . " kWh/m2 szacowana ilość mocy potrzebna do ogrzania domu to: " . $power . " kW";
-                    $message .= "\nSzczegóły dotyczące wybranej pompy ciepła:";
-                    $message .= "\nNazwa: " . $name_of_pump;
-                    $message .= "\nId: " . $id;
-                    $message .= "\nMoc: " . $efficiency . " kW";
-                    $message .= "\nCena: " . $price . " zł";
-                    $message .= "\nLink do strony producenta: ". $link;
-                }
+                $message .= "\nNazwa: " . $name_of_pump;
+                $message .= "\nId: " . $id;
+                $message .= "\nMoc: " . $efficiency . " kW";
+                $message .= "\nCena: " . $price . " zł";
+                $message .= "\nLink do strony producenta: ". $link;
             }
+
             $message .= "\nWszelkie informacje do korespondencji znajdują się pod podanym linkiem: https://sevro.pl/kontakt/";
             $subject = "Wycena pompy ciepła";
 
             $to = get_option('admin_email');
+            $email = 'przemyslawkijania97@gmail.com';
             $headers = "From: $name <$email>" . "\r\n";
             $headers .= "CC: $email" . "\r\n";
 
-            if (wp_mail($to, $subject, $message, $headers)) {
+            if (wp_mail($template, $subject, $message, $headers)) {
                 echo '<div>';
                 echo "<h4>Wyniki zostały wysłane na podany email.</h4>";
                 echo '</div>';
@@ -249,28 +264,22 @@ function html_results_code($power, $area, $standard, $name_of_pump, $id, $effici
 {
     if (isset($_POST['cf-submitted']) && !isset($_POST['cf-result'])) {
         echo '<form action="' . esc_url($_SERVER['REQUEST_URI']) . '" method="post">';
+        echo 'Dla powierzchni ogrzewania: ' . esc_html($area) . ' m2 oraz standardu wykonania: ' . esc_html($standard) . ' kWh/m2 szacowana ilość mocy potrzebna do ogrzania domu to: ' . esc_html($power) . ' kW<br>';
+        echo 'Szczegóły dotyczące wybranej pompy ciepła:<br>';
 
-        if ($power > 15) {
-            echo 'Dla powierzchni ogrzewania: ' . esc_html($area) . ' m2 oraz standardu wykonania: ' . esc_html($standard) . ' kWh/m2 szacowana ilość mocy potrzebna do ogrzania domu to: ' . esc_html($power) . ' kW<br>';
-            echo 'W celu doboru odpowiedniej pompy ciepła prosimy o bezpośredni kontakt';
+        if ($power > 15 || empty($name_of_pump)) {
+            echo 'Nie znaleziono odpowiedniej pompy ciepła<br>';
+            echo 'W celu doboru urządzenia prosimy o bezpośredni kontakt lub o wprowadzenie innych danych<br>';
         }
         else {
-            if (empty($name_of_pump)) {
-                echo 'Dla powierzchni ogrzewania: ' . esc_html($area) . ' m2 oraz standardu wykonania: ' . esc_html($standard) . ' kWh/m2 brak odpowiedniej pompy ciepla<br>';
-                echo 'W celu doboru odpowiedniej pompy ciepła prosimy wprowadzenie innych danych lub o bezpośredni kontakt';
+            echo '<p>';
+            echo 'Nazwa: ' . esc_attr($name_of_pump) . '<br>';
+            echo 'Numer id: ' . esc_attr($id) . '<br>';
+            echo 'Moc: ' . esc_attr($efficiency) . ' kW <br>';
+            echo 'Cena: ' . esc_attr($price) . ' zł <br>';
+            echo 'Strona producenta: ' . esc_attr($link) . '<br>';
+            echo '</p>';
             }
-            else {
-                echo '<p>';
-                echo 'Dla powierzchni ogrzewania: ' . esc_html($area) . ' m2 oraz standardu wykonania: ' . esc_html($standard) . ' kWh/m2 szacowana ilość mocy potrzebna do ogrzania domu to: ' . esc_html($power) . ' kW<br>';
-                echo 'Szczegóły dotyczące wybranej pompy ciepła:<br>';
-                echo 'Nazwa: ' . esc_attr($name_of_pump) . '<br>';
-                echo 'Numer id: ' . esc_attr($id) . '<br>';
-                echo 'Moc: ' . esc_attr($efficiency) . ' kW <br>';
-                echo 'Cena: ' . esc_attr($price) . ' zł <br>';
-                echo 'Strona producenta: ' . esc_attr($link) . '<br>';
-                echo '</p>';
-            }               
-        }
         echo '</form>';
     }
 }
