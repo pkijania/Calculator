@@ -126,22 +126,24 @@ class Calculator
             $message = esc_textarea($_POST["cf-message"]);
             
             $variables = array();
-            $variables['area'] = $area;
-            $variables['standard'] = $standard;
-            $variables['power'] = $power;
-            $variables['name'] = $name_of_pump;
-            $variables['id'] = $id;
-            $variables['efficiency'] = $efficiency;
-            $variables['price'] = $price;
-            $variables['link'] = $link;
-            $template = file_get_contents("template.html");
+            $variables['area'] = sanitize_text_field($area);
+            $variables['standard'] = sanitize_text_field($standard);
+            $variables['power'] = sanitize_text_field($power);
+            $variables['name'] = sanitize_text_field($name_of_pump);
+            $variables['id'] = sanitize_text_field($id);
+            $variables['efficiency'] = sanitize_text_field($efficiency);
+            $variables['price'] = sanitize_text_field($price);
+            $variables['link'] = esc_url($link);
 
-            foreach($variables as $key => $value)
-            {
-                $template = str_replace('{{ '.$key.' }}', $value, $template);
+            $template_path = WP_PLUGIN_DIR . '/power-calculator/template.html';
+            if (!file_exists($template_path)) {
+                echo 'Plik szablonu nie został znaleziony: ' . $template_path;
             }
+            $template = file_get_contents($template_path);
 
-            echo $template;
+            foreach ($variables as $key => $value) {
+                $template = str_replace('{{' . $key . '}}', $value, $template);
+            }
 
             $message .= "\nWyniki dla wyceny pompy ciepła:";
             $message .= "\nDla powierzchni ogrzewania: " . $area . " m2 oraz standardu wykonania: " . $standard . " kWh/m2 szacowana ilość mocy potrzebna do ogrzania domu to: " . $power . " kW";
@@ -163,11 +165,11 @@ class Calculator
             $subject = "Wycena pompy ciepła";
 
             $to = get_option('admin_email');
-            $email = 'przemyslawkijania97@gmail.com';
             $headers = "From: $name <$email>" . "\r\n";
             $headers .= "CC: $email" . "\r\n";
+            $headers .= array('Content-Type: text/html; charset=UTF-8');
 
-            if (wp_mail($template, $subject, $message, $headers)) {
+            if (wp_mail($to, $subject, $template, $headers)) {
                 echo '<div>';
                 echo "<h4>Wyniki zostały wysłane na podany email.</h4>";
                 echo '</div>';
