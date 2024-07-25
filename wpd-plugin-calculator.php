@@ -2,7 +2,7 @@
 /*
 Plugin Name: Power calculator
 Description: Simple calculator and correspondence plugin
-Version: 1.8
+Version: 1.9
 Author: Przemysław Kijania
 Author URI: https://przemyslawkijania.pl/
 */
@@ -167,7 +167,7 @@ class Calculator
             $to = get_option('admin_email');
             $headers = "From: $name <$email>" . "\r\n";
             $headers .= "CC: $email" . "\r\n";
-            $headers .= array('Content-Type: text/html; charset=UTF-8');
+            $headers .= "Content-Type: text/html; charset=UTF-8";
 
             if (wp_mail($to, $subject, $template, $headers)) {
                 echo '<div>';
