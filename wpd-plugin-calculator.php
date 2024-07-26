@@ -22,53 +22,27 @@ class Calculator
         return $this->pump_power;
     }
 
-    // Storage of all heat pumps
+    // Get all the pump models from csv file
     private function get_pump_models()
     {
-        return [
-            1 => [
-                "Nazwa" => "Viessmann Vitocal 200-G",
-                "Id" => "Z026802",
-                "Moc" => 5.8,
-                "Cena [PLN]" => 28176.64,
-                "Link" => "https://www.viessmann.pl/pl/produkty/pompy-ciepla/vitocal-200-g.html",
-            ],
-            2 => [
-                "Nazwa" => "Viessmann Vitocal 300-G",
-                "Id" => "Z026796",
-                "Moc" => 7.4,
-                "Cena [PLN]" => 36709.76,
-                "Link" => "https://www.viessmann.pl/pl/produkty/pompy-ciepla/vitocal-300-g.html",
-            ],
-            3 => [
-                "Nazwa" => "Vaillant FlexoTHERM exclusive",
-                "Id" => "0010044243",
-                "Moc" => 11.2,
-                "Cena [PLN]" => 38992.00,
-                "Link" => "https://www.vaillant.pl/klienci-indywidualni/produkty-i-systemy/flexotherm-exclusive-36289.html",
-            ],
-            4 => [
-                "Nazwa" => "Vaillant FlexoCOMPACT exclusive",
-                "Id" => "0010044212",
-                "Moc" => 8.8,
-                "Cena [PLN]" => 45845.00,
-                "Link" => "https://www.vaillant.pl/klienci-indywidualni/produkty-i-systemy/flexocompact-exclusive-36288.html",
-            ],
-            5 => [
-                "Nazwa" => "Alpha innotec alterra SW 142H3",
-                "Id" => "10070542",
-                "Moc" => 13.5,
-                "Cena [PLN]" => 35500.00,
-                "Link" => "https://alphainnotec.pl/produkty/alterra/sw/h/142h3/",
-            ],
-            6 => [
-                "Nazwa" => "Alpha innotec alterra SWC 102H3",
-                "Id" => "10068342",
-                "Moc" => 9.3,
-                "Cena [PLN]" => 32400.00,
-                "Link" => "https://alphainnotec.pl/produkty/alterra/swc/h/102h3/",
-            ],
-        ];
+        $csvFile = WP_PLUGIN_DIR . '/power-calculator/Spis_pomp.csv';
+        $pumps = [];
+        $index = 1;
+        if (($handle = fopen($csvFile, 'r')) !== FALSE) {
+            $header = fgetcsv($handle, 1000, ";");
+            while (($data = fgetcsv($handle, 1000, ";")) !== FALSE) {
+                $pumps[$index] = [
+                    "Nazwa" => $data[0],
+                    "Id" => $data[1],
+                    "Moc" => floatval(str_replace(',', '.', $data[2])),
+                    "Cena [PLN]" => $data[3],
+                    "Link" => $data[4]
+                ];
+                $index++;
+            }
+            fclose($handle);
+        }
+        return $pumps;
     }
 
     // Construct a list with powers of all heat pumps
