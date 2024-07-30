@@ -100,6 +100,7 @@ class Calculator
             $message = esc_textarea($_POST["cf-message"]);
             
             $variables = array();
+            $variables['user'] = sanitize_text_field($name);
             $variables['area'] = sanitize_text_field($area);
             $variables['standard'] = sanitize_text_field($standard);
             $variables['power'] = sanitize_text_field($power);
@@ -120,36 +121,28 @@ class Calculator
                 $template = str_replace('{{' . $key . '}}', $value, $template);
             }
 
-            $message .= "\nWyniki dla wyceny pompy ciepła:";
-            $message .= "\nDla powierzchni ogrzewania: " . $area . " m2 oraz standardu wykonania: " . $standard . " kWh/m2 szacowana ilość mocy potrzebna do ogrzania domu to: " . $power . " kW";
-            $message .= "\nSzczegóły dotyczące wybranej pompy ciepła:";
-
-            if ($power > 15 || empty($name_of_pump)) {
-                $message .= "\nNie znaleziono odpowiedniej pompy ciepła";
-                $message .= "\nW celu doboru urządzenia prosimy o bezpośredni kontakt lub o wprowadzenie innych danych";
-            }
-            else {
+            if ($power <= 15 || !empty($name_of_pump)){
+                $message .= "\nWyniki dla wyceny pompy ciepła:";
+                $message .= "\nDla powierzchni ogrzewania: " . $area . " m2 oraz standardu wykonania: " . $standard . " kWh/m2 szacowana ilość mocy potrzebna do ogrzania domu to: " . $power . " kW";
+                $message .= "\nSzczegóły dotyczące wybranej pompy ciepła:";
                 $message .= "\nNazwa: " . $name_of_pump;
                 $message .= "\nId: " . $id;
                 $message .= "\nMoc: " . $efficiency . " kW";
                 $message .= "\nCena: " . $price . " zł";
                 $message .= "\nLink do strony producenta: ". $link;
-            }
+                $message .= "\nWszelkie informacje do korespondencji znajdują się pod podanym linkiem: https://sevro.pl/kontakt/";
 
-            $message .= "\nWszelkie informacje do korespondencji znajdują się pod podanym linkiem: https://sevro.pl/kontakt/";
-            $subject = "Wycena pompy ciepła";
-
-            $to = get_option('admin_email');
-            $headers = "From: $name <$email>" . "\r\n";
-            $headers .= "CC: $email" . "\r\n";
-            $headers .= "Content-Type: text/html; charset=UTF-8";
-
-            if (wp_mail($to, $subject, $template, $headers)) {
-                echo '<div>';
-                echo "<h4>Wyniki zostały wysłane na podany email.</h4>";
-                echo '</div>';
-            } else {
-                echo 'Wystąpił nieznany błąd';
+                $subject = "Wycena pompy ciepła";
+                $to = get_option('admin_email');
+                $headers = "From: $name <$email>" . "\r\n";
+                $headers .= "CC: $email" . "\r\n";
+                $headers .= "Content-Type: text/html; charset=UTF-8";
+        
+                if (wp_mail($to, $subject, $template, $headers)) {
+                    echo '<div>';
+                    echo "<h4>Wyniki zostały wysłane na podany email.</h4>";
+                    echo '</div>';
+                }
             }
         }
     }
