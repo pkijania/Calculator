@@ -108,6 +108,7 @@ class Calculator
             $variables['efficiency'] = sanitize_text_field($efficiency);
             $variables['price'] = sanitize_text_field($price);
             $variables['link'] = esc_url($link);
+            $variables['cf-message'] = sanitize_text_field($message);
 
             $template_path = WP_PLUGIN_DIR . '/power-calculator/template.html';
             if (!file_exists($template_path)) {
