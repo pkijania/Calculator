@@ -140,7 +140,7 @@ class Calculator
         
                 if (wp_mail($to, $subject, $template, $headers)) {
                     echo '<div>';
-                    echo "<h4>Wyniki zostały wysłane na podany email.</h4>";
+                    echo "<h4>Wyniki zostały wysłane na podany e-mail.</h4>";
                     echo '</div>';
                 }
             }
