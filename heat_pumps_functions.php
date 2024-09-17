@@ -153,7 +153,7 @@ class Calculator
 
         if ($variables['main']['power'] <= 16 || !empty($variables['main']['name'])){
             $subject = "Wycena pompy ciepła - " . $variables['main']['user'];
-            $to = "wycena@sevro.pl";
+            $to = "gmail@gmail.com";
             $headers = "From: " . $variables['main']['user'] . " <" . $variables['main']['email'] . ">" . "\r\n";
             $headers .= "CC: " . $variables['main']['email'] . "\r\n";
             $headers .= "Content-Type: text/html; charset=UTF-8";
