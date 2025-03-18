@@ -3,7 +3,7 @@ Feature: Calculate_default
 
 Scenario: Calculate
     Given I am situated on the calculator subpage
-    When I click calculate button
+    When I configure all the parameters: 5, 5, 2, 2, 3, 5, 4 and click calculate button
     Then I proceed to credentials subpage
 
 Scenario: Credentials

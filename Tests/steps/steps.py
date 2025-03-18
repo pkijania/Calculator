@@ -8,22 +8,22 @@ def step_impl(context):
     calculate = Calculate(context.driver)
     assert calculate.calculate_exists()
 
-@when("I click calculate button")
-def step_impl(context):
+@when("I configure all the parameters: {width}, {length}, {height}, {number_of_people}, {number_of_agd_devices}, {instalation_length}, {concrete_length} and click calculate button")
+def step_impl(context, width, length, height, number_of_people, number_of_agd_devices, instalation_length, concrete_length):
     context.driver.find_element(By.ID, "sfAgreeAllButton").click()
 
-    context.driver.execute_script("arguments[0].value = 5;", context.driver.find_element(By.NAME, "width"))
+    context.driver.execute_script("arguments[0].value = {};".format(width), context.driver.find_element(By.NAME, "width"))
     context.driver.execute_script("arguments[0].dispatchEvent(new Event('change'));", context.driver.find_element(By.NAME, "width"))
-    context.driver.execute_script("arguments[0].value = 5;", context.driver.find_element(By.NAME, "length"))
+    context.driver.execute_script("arguments[0].value = {};".format(length), context.driver.find_element(By.NAME, "length"))
     context.driver.execute_script("arguments[0].dispatchEvent(new Event('change'));", context.driver.find_element(By.NAME, "length"))
-    context.driver.execute_script("arguments[0].value = 2;", context.driver.find_element(By.NAME, "height"))
+    context.driver.execute_script("arguments[0].value = {};".format(height), context.driver.find_element(By.NAME, "height"))
     context.driver.execute_script("arguments[0].dispatchEvent(new Event('change'));", context.driver.find_element(By.NAME, "height"))
 
-    context.driver.execute_script("arguments[0].value = 2;", context.driver.find_element(By.NAME, "number_of_people"))
+    context.driver.execute_script("arguments[0].value = {};".format(number_of_people), context.driver.find_element(By.NAME, "number_of_people"))
     context.driver.execute_script("arguments[0].dispatchEvent(new Event('change'));", context.driver.find_element(By.NAME, "number_of_people"))
-    context.driver.execute_script("arguments[0].value = 3;", context.driver.find_element(By.NAME, "number_of_agd_devices"))
+    context.driver.execute_script("arguments[0].value = {};".format(number_of_agd_devices), context.driver.find_element(By.NAME, "number_of_agd_devices"))
     context.driver.execute_script("arguments[0].dispatchEvent(new Event('change'));", context.driver.find_element(By.NAME, "number_of_agd_devices"))
-    context.driver.execute_script("arguments[0].value = 5;", context.driver.find_element(By.NAME, "instalation_length"))
+    context.driver.execute_script("arguments[0].value = {};".format(instalation_length), context.driver.find_element(By.NAME, "instalation_length"))
     context.driver.execute_script("arguments[0].dispatchEvent(new Event('change'));", context.driver.find_element(By.NAME, "instalation_length"))
 
     ActionChains(context.driver).move_to_element(context.driver.find_element(By.NAME, "gree_device")).click().perform()
@@ -33,7 +33,7 @@ def step_impl(context):
     ActionChains(context.driver).move_to_element(context.driver.find_element(By.NAME, "position_of_window")).click().perform()
 
     ActionChains(context.driver).move_to_element(context.driver.find_element(By.ID, "use_concrete")).click().perform()
-    context.driver.execute_script("arguments[0].value = 4;", context.driver.find_element(By.ID, "concrete_length"))
+    context.driver.execute_script("arguments[0].value = {};".format(concrete_length), context.driver.find_element(By.ID, "concrete_length"))
     context.driver.execute_script("arguments[0].dispatchEvent(new Event('change'));", context.driver.find_element(By.ID, "concrete_length"))
 
     ActionChains(context.driver).move_to_element(context.driver.find_element(By.NAME, "cf-count")).click().perform()

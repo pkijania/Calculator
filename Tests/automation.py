@@ -61,31 +61,31 @@ class Calculate:
     def __init__(self, driver):
         self.driver = driver
 
-    def calculate(self):
+    def calculate(self, width, length, height, number_of_people, number_of_agd_devices, instalation_length, concrete_length):
         self.driver.find_element(*ParametersLocators.coockies).click()
         
-        self.driver.execute_script("arguments[0].value = 5;", self.driver.find_element(*ParametersLocators.width))
+        self.driver.execute_script("arguments[0].value = {};".format(width), self.driver.find_element(*ParametersLocators.width))
         self.driver.execute_script("arguments[0].dispatchEvent(new Event('change'));", self.driver.find_element(*ParametersLocators.width))
-        self.driver.execute_script("arguments[0].value = 5;", self.driver.find_element(*ParametersLocators.length))
+        self.driver.execute_script("arguments[0].value = {};".format(length), self.driver.find_element(*ParametersLocators.length))
         self.driver.execute_script("arguments[0].dispatchEvent(new Event('change'));", self.driver.find_element(*ParametersLocators.length))
-        self.driver.execute_script("arguments[0].value = 2;", self.driver.find_element(*ParametersLocators.height))
+        self.driver.execute_script("arguments[0].value = {};".format(height), self.driver.find_element(*ParametersLocators.height))
         self.driver.execute_script("arguments[0].dispatchEvent(new Event('change'));", self.driver.find_element(*ParametersLocators.height))
 
-        self.driver.execute_script("arguments[0].value = 2;", self.driver.find_element(*ParametersLocators.number_of_people))
+        self.driver.execute_script("arguments[0].value = {};".format(number_of_people), self.driver.find_element(*ParametersLocators.number_of_people))
         self.driver.execute_script("arguments[0].dispatchEvent(new Event('change'));", self.driver.find_element(*ParametersLocators.number_of_people))
-        self.driver.execute_script("arguments[0].value = 3;", self.driver.find_element(*ParametersLocators.number_of_agd_devices))
+        self.driver.execute_script("arguments[0].value = {};".format(number_of_agd_devices), self.driver.find_element(*ParametersLocators.number_of_agd_devices))
         self.driver.execute_script("arguments[0].dispatchEvent(new Event('change'));", self.driver.find_element(*ParametersLocators.number_of_agd_devices))
-        self.driver.execute_script("arguments[0].value = 5;", self.driver.find_element(*ParametersLocators.instalation_length))
+        self.driver.execute_script("arguments[0].value = {};".format(instalation_length), self.driver.find_element(*ParametersLocators.instalation_length))
         self.driver.execute_script("arguments[0].dispatchEvent(new Event('change'));", self.driver.find_element(*ParametersLocators.instalation_length))
 
         ActionChains(self.driver).move_to_element(self.driver.find_element(*ParametersLocators.gree_device)).click().perform()
         ActionChains(self.driver).move_to_element(self.driver.find_element(*ParametersLocators.lg_device)).click().perform()
 
-        ActionChains(self.driver).move_to_element(self.driver.find_element(*ParametersLocators.lg_device)).click().perform()
-        ActionChains(self.driver).move_to_element(self.driver.find_element(*ParametersLocators.lg_device)).click().perform()
+        ActionChains(self.driver).move_to_element(self.driver.find_element(*ParametersLocators.attic)).click().perform()
+        ActionChains(self.driver).move_to_element(self.driver.find_element(*ParametersLocators.position_of_window)).click().perform()
 
         ActionChains(self.driver).move_to_element(self.driver.find_element(*ParametersLocators.use_concrete)).click().perform()
-        self.driver.execute_script("arguments[0].value = 4;", self.driver.find_element(*ParametersLocators.concrete_length))
+        self.driver.execute_script("arguments[0].value = {};".format(concrete_length), self.driver.find_element(*ParametersLocators.concrete_length))
         self.driver.execute_script("arguments[0].dispatchEvent(new Event('change'));", self.driver.find_element(*ParametersLocators.concrete_length))
 
         ActionChains(self.driver).move_to_element(self.driver.find_element(*ParametersLocators.submit)).click().perform()
