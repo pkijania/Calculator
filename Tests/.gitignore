@@ -7,4 +7,3 @@ Tests/__pycache__/
 .pytest_cache
 allure-report/
 allure-results/
-.idea/
