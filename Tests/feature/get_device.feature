@@ -1,5 +1,5 @@
-Feature: Calculate_default
-    Test which calculates power using default parameters
+Feature: Calculate_custom
+    Test which calculates power using custom parameters
 
 Scenario: Calculate
     Given I am situated on the calculator subpage
