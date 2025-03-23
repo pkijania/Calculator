@@ -43,7 +43,7 @@ def step_impl(context, name, email, telephone, location):
     credentials = Credentials(context.driver)
     credentials.credentials(name, email, telephone, location)
 
-@then("I proceed to summary subpage and see {expected_text}")
+@then("I proceed to summary subpage and see: {expected_text}")
 def step_impl(context, expected_text):
     credentials = Credentials(context.driver)
     assert credentials.credentials_text_exists(expected_text), f"Didn't find '{expected_text}' on the subpage!"
