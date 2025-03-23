@@ -1,41 +1,6 @@
-from selenium.webdriver.common.by import By
 from selenium.common.exceptions import NoSuchElementException
 from selenium.webdriver.common.action_chains import ActionChains
-
-class ParametersLocators:
-    coockies = (By.ID, "sfAgreeAllButton")
-
-    width = (By.NAME, "width")
-    length = (By.NAME, "length")
-    height = (By.NAME, "height")
-
-    number_of_people = (By.NAME, "number_of_people")
-    number_of_agd_devices = (By.NAME, "number_of_agd_devices")
-    instalation_length = (By.NAME, "instalation_length")
-
-    gree_device = (By.NAME, "gree_device")
-    lg_device = (By.NAME, "lg_device")
-    panasonic_device = (By.NAME, "panasonic_device")
-
-    attic = (By.NAME, "attic")
-    position_of_window = (By.NAME, "position_of_window")
-
-    use_trough = (By.ID, "use_trough")
-    trough_length = (By.ID, "trough_length")
-    use_concrete = (By.ID, "use_concrete")
-    concrete_length = (By.ID, "concrete_length")
-    use_bricks = (By.ID, "use_bricks")
-    brick_length = (By.ID, "brick_length")
-
-    submit = (By.NAME, "cf-count")
-
-class CredentialsLocators:
-    name = (By.NAME, "cf-name")
-    email = (By.NAME, "cf-email")
-    telephone = (By.NAME, "cf-telephone")
-    location = (By.NAME, "cf-location")
-    message = (By.NAME, "cf-message")
-    send = (By.NAME, "cf-submitted")
+from locators import *
 
 class PositionValidator:
     @staticmethod
@@ -61,51 +26,52 @@ class Calculate:
     def __init__(self, driver):
         self.driver = driver
 
-    def calculate(self, width, length, height, number_of_people, number_of_agd_devices, instalation_length, concrete_length):
-        self.driver.find_element(*ParametersLocators.coockies).click()
-        
-        self.driver.execute_script("arguments[0].value = {};".format(width), self.driver.find_element(*ParametersLocators.width))
-        self.driver.execute_script("arguments[0].dispatchEvent(new Event('change'));", self.driver.find_element(*ParametersLocators.width))
-        self.driver.execute_script("arguments[0].value = {};".format(length), self.driver.find_element(*ParametersLocators.length))
-        self.driver.execute_script("arguments[0].dispatchEvent(new Event('change'));", self.driver.find_element(*ParametersLocators.length))
-        self.driver.execute_script("arguments[0].value = {};".format(height), self.driver.find_element(*ParametersLocators.height))
-        self.driver.execute_script("arguments[0].dispatchEvent(new Event('change'));", self.driver.find_element(*ParametersLocators.height))
+    def calculate_size(self, width, length, height):
+        self.driver.find_element(*Other.coockies).click()
+        self.driver.execute_script("arguments[0].value = {};".format(width), self.driver.find_element(*Size.width))
+        self.driver.execute_script("arguments[0].dispatchEvent(new Event('change'));", self.driver.find_element(*Size.width))
+        self.driver.execute_script("arguments[0].value = {};".format(length), self.driver.find_element(*Size.length))
+        self.driver.execute_script("arguments[0].dispatchEvent(new Event('change'));", self.driver.find_element(*Size.length))
+        self.driver.execute_script("arguments[0].value = {};".format(height), self.driver.find_element(*Size.height))
+        self.driver.execute_script("arguments[0].dispatchEvent(new Event('change'));", self.driver.find_element(*Size.height))
 
-        self.driver.execute_script("arguments[0].value = {};".format(number_of_people), self.driver.find_element(*ParametersLocators.number_of_people))
-        self.driver.execute_script("arguments[0].dispatchEvent(new Event('change'));", self.driver.find_element(*ParametersLocators.number_of_people))
-        self.driver.execute_script("arguments[0].value = {};".format(number_of_agd_devices), self.driver.find_element(*ParametersLocators.number_of_agd_devices))
-        self.driver.execute_script("arguments[0].dispatchEvent(new Event('change'));", self.driver.find_element(*ParametersLocators.number_of_agd_devices))
-        self.driver.execute_script("arguments[0].value = {};".format(instalation_length), self.driver.find_element(*ParametersLocators.instalation_length))
-        self.driver.execute_script("arguments[0].dispatchEvent(new Event('change'));", self.driver.find_element(*ParametersLocators.instalation_length))
+    def calculate_content(self, number_of_people, number_of_agd_devices, instalation_length):
+        self.driver.execute_script("arguments[0].value = {};".format(number_of_people), self.driver.find_element(*Content.number_of_people))
+        self.driver.execute_script("arguments[0].dispatchEvent(new Event('change'));", self.driver.find_element(*Content.number_of_people))
+        self.driver.execute_script("arguments[0].value = {};".format(number_of_agd_devices), self.driver.find_element(*Content.number_of_agd_devices))
+        self.driver.execute_script("arguments[0].dispatchEvent(new Event('change'));", self.driver.find_element(*Content.number_of_agd_devices))
+        self.driver.execute_script("arguments[0].value = {};".format(instalation_length), self.driver.find_element(*Content.instalation_length))
+        self.driver.execute_script("arguments[0].dispatchEvent(new Event('change'));", self.driver.find_element(*Content.instalation_length))
 
-        ActionChains(self.driver).move_to_element(self.driver.find_element(*ParametersLocators.gree_device)).click().perform()
-        ActionChains(self.driver).move_to_element(self.driver.find_element(*ParametersLocators.lg_device)).click().perform()
+    def calculate_brands_and_layout(self):
+        ActionChains(self.driver).move_to_element(self.driver.find_element(*Brands.gree_device)).click().perform()
+        ActionChains(self.driver).move_to_element(self.driver.find_element(*Brands.lg_device)).click().perform()
 
-        ActionChains(self.driver).move_to_element(self.driver.find_element(*ParametersLocators.attic)).click().perform()
-        ActionChains(self.driver).move_to_element(self.driver.find_element(*ParametersLocators.position_of_window)).click().perform()
+        ActionChains(self.driver).move_to_element(self.driver.find_element(*Layout.attic)).click().perform()
+        ActionChains(self.driver).move_to_element(self.driver.find_element(*Layout.position_of_window)).click().perform()
 
-        ActionChains(self.driver).move_to_element(self.driver.find_element(*ParametersLocators.use_concrete)).click().perform()
-        self.driver.execute_script("arguments[0].value = {};".format(concrete_length), self.driver.find_element(*ParametersLocators.concrete_length))
-        self.driver.execute_script("arguments[0].dispatchEvent(new Event('change'));", self.driver.find_element(*ParametersLocators.concrete_length))
-
-        ActionChains(self.driver).move_to_element(self.driver.find_element(*ParametersLocators.submit)).click().perform()
+    def calculate_intalation(self, concrete_length):
+        ActionChains(self.driver).move_to_element(self.driver.find_element(*Instalation.use_concrete)).click().perform()
+        self.driver.execute_script("arguments[0].value = {};".format(concrete_length), self.driver.find_element(*Instalation.concrete_length))
+        self.driver.execute_script("arguments[0].dispatchEvent(new Event('change'));", self.driver.find_element(*Instalation.concrete_length))
+        ActionChains(self.driver).move_to_element(self.driver.find_element(*Other.submit)).click().perform()
 
     def calculate_exists(self):
-        return PositionValidator.check_if_exists(self.driver, ParametersLocators.coockies)
+        return PositionValidator.check_if_exists(self.driver, Other.coockies)
 
 class Credentials:
     def __init__(self, driver):
         self.driver = driver
 
     def credentials(self, name, email, telephone, location):
-        self.driver.find_element(*CredentialsLocators.name).send_keys(name)
-        self.driver.find_element(*CredentialsLocators.email).send_keys(email)
-        self.driver.find_element(*CredentialsLocators.telephone).send_keys(telephone)
-        self.driver.find_element(*CredentialsLocators.location).send_keys(location)
-        ActionChains(self.driver).move_to_element(self.driver.find_element(*CredentialsLocators.send)).click().perform()
+        self.driver.find_element(*Details.name).send_keys(name)
+        self.driver.find_element(*Details.email).send_keys(email)
+        self.driver.find_element(*Details.telephone).send_keys(telephone)
+        self.driver.find_element(*Details.location).send_keys(location)
+        ActionChains(self.driver).move_to_element(self.driver.find_element(*Details.send)).click().perform()
 
     def credentials_exists(self):
-        return PositionValidator.check_if_exists(self.driver, CredentialsLocators.send)
+        return PositionValidator.check_if_exists(self.driver, Details.send)
 
     def credentials_text_exists(self, expected_text):
         return TextValidator.check_if_text_exists(self.driver, expected_text)

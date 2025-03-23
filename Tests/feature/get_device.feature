@@ -3,7 +3,10 @@ Feature: Calculate_default
 
 Scenario: Calculate
     Given I am situated on the calculator subpage
-    When I configure all the parameters: 5, 5, 2, 2, 3, 5, 4 and click calculate button
+    When I accept cookies and configure size parameters: 5, 5, 2
+    And  I configure content parameters: 2, 3, 5
+    And I choose brands and layout parameters
+    And I configure wall material: 4 and click calculate button
     Then I proceed to credentials subpage
 
 Scenario: Credentials

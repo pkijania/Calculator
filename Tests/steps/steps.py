@@ -1,4 +1,3 @@
-from selenium.webdriver.common.by import By
 from automation import *
 from behave import *
 
@@ -8,10 +7,25 @@ def step_impl(context):
     calculate = Calculate(context.driver)
     assert calculate.calculate_exists()
 
-@when("I configure all the parameters: {width}, {length}, {height}, {number_of_people}, {number_of_agd_devices}, {instalation_length}, {concrete_length} and click calculate button")
-def step_impl(context, width, length, height, number_of_people, number_of_agd_devices, instalation_length, concrete_length):
+@when("I accept cookies and configure size parameters: {width}, {length}, {height}")
+def step_impl(context, width, length, height):
     calculate = Calculate(context.driver)
-    calculate.calculate(width, length, height, number_of_people, number_of_agd_devices, instalation_length, concrete_length)
+    calculate.calculate_size(width, length, height)
+
+@step("I configure content parameters: {number_of_people}, {number_of_agd_devices}, {instalation_length}")
+def step_impl(context, number_of_people, number_of_agd_devices, instalation_length):
+    calculate = Calculate(context.driver)
+    calculate.calculate_content(number_of_people, number_of_agd_devices, instalation_length)
+
+@step("I choose brands and layout parameters")
+def step_impl(context):
+    calculate = Calculate(context.driver)
+    calculate.calculate_brands_and_layout()
+
+@step("I configure wall material: {concrete_length} and click calculate button")
+def step_impl(context, concrete_length):
+    calculate = Calculate(context.driver)
+    calculate.calculate_intalation(concrete_length)
 
 @then("I proceed to credentials subpage")
 def step_impl(context):
