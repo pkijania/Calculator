@@ -1,0 +1,14 @@
+{
+    "width": 5,
+    "length": 5,
+    "height": 2,
+    "number_of_people": 2,
+    "number_of_agd_devices": 3,
+    "instalation_length": 5,
+    "concrete_length": 4,
+    "name": "John Smith",
+    "email": "3lastik@gmail.com",
+    "telephone": "123 123 123",
+    "location": "Los Angeles",
+    "expected_text": "Szczegóły dotyczące wybranych klimatyzatorów:"
+  }
