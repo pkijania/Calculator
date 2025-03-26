@@ -9,4 +9,3 @@ def before_all(context):
     driver.get("https://sevro.pl/kalkulator-klimatyzatorow/")
     driver.maximize_window()
     context.driver = driver
-    context.driver.implicitly_wait(10)
