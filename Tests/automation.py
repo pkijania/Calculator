@@ -95,16 +95,4 @@ class Credentials:
         return PositionValidator.check_if_exists(self.driver, Details.send)
 
     def credentials_text_exists(self):
-        expected = self.expected_text.strip().strip('"')
-        time.sleep(2)
-
-        actual = self.driver.page_source.encode('utf-8').decode('utf-8')
-
-        if expected in actual:
-            print("✅ Tekst został znaleziony!")
-            return True
-        else:
-            print("❌ Tekst NIE został znaleziony!")
-            print("Oczekiwany tekst:", repr(expected))
-            print("Tekst na stronie:", repr(actual[:500]))
-            return False
+        return PositionValidator.check_if_text_exists(self.driver, self.expected_text)
